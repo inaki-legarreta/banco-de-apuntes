@@ -1,22 +1,39 @@
 /*
- * componentes.css — Estilos de los componentes reutilizables de la UI.
- * Responsabilidad: definir el aspecto de piezas compartidas (botones, listas, modales...).
- * En el prompt 0 solo existe la portada provisional; el resto llega en el prompt 3.
+ * componentes.css — Estilos de los componentes de la UI.
+ * Responsabilidad: definir el aspecto de las pantallas y piezas de la app, siempre con los
+ * tokens de tokens.css. La estructura general de pantalla y los componentes compartidos
+ * (botones, listas, modales...) llegan en el prompt 3; acá solo está lo que necesita el
+ * login (prompt 2).
  */
 
-/* Portada provisional del esqueleto: muestra el nombre centrado mientras no hay pantallas. */
-.portada {
+/* =========================================================================================
+ * Login (prompt 2)
+ * Mobile-first a 390 px: tarjeta a todo el ancho con margen lateral, centrada en la pantalla.
+ * ======================================================================================= */
+
+/* Pantalla completa con la tarjeta centrada; el padding evita que toque los bordes. */
+.login {
   min-height: 100vh;
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: 24px 16px;
   background: var(--azul-850);
 }
 
-/* Título de la portada; el dorado en degradé se reserva para este acento (DS5). */
-.portada__titulo {
-  font-size: 2rem;
+/* Tarjeta del formulario; el ancho máximo la mantiene legible en escritorio. */
+.login__tarjeta {
+  width: 100%;
+  max-width: 400px;
+  padding: 32px 20px 28px;
+  background: var(--azul-panel);
+  border-radius: var(--radio-lg);
+}
+
+/* Nombre de la app con el degradé dorado de acento (DS5). */
+.login__titulo {
+  margin-bottom: 24px;
+  font-size: 1.75rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   text-align: center;
@@ -24,4 +41,177 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* Aviso informativo (por ejemplo, cierre por inactividad): neutro, no es un error. */
+.login__aviso {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  background: var(--azul-800);
+  border-radius: var(--radio-sm);
+  color: var(--texto);
+  font-size: 0.9375rem;
+}
+
+/* Columna de campos con separación uniforme. */
+.login__formulario {
+  display: grid;
+  gap: 16px;
+}
+
+.login__campo {
+  display: grid;
+  gap: 6px;
+}
+
+.login__etiqueta {
+  color: var(--texto-suave);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* 16 px de letra como mínimo: con menos, iOS hace zoom al enfocar (C5). */
+.login__entrada {
+  width: 100%;
+  min-height: var(--toque-min);
+  padding: 10px 14px;
+  font-size: 1rem;
+  background: var(--azul-850);
+  border: 1px solid color-mix(in srgb, var(--texto-tenue) 45%, transparent);
+  border-radius: var(--radio-sm);
+}
+
+.login__entrada:focus-visible {
+  border-color: var(--acento);
+}
+
+/* Toda la fila es tocable y mide al menos 44 px (D7). */
+.login__casilla {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--toque-min);
+  cursor: pointer;
+}
+
+.login__casilla-control {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--dorado);
+}
+
+.login__casilla-texto {
+  display: grid;
+  font-size: 0.9375rem;
+}
+
+/* Aclaración "Solo en dispositivos propios", más tenue que la etiqueta. */
+.login__casilla-ayuda {
+  color: var(--texto-tenue);
+  font-size: 0.8125rem;
+}
+
+/* Zona de error: vacía no ocupa lugar; con texto se lee en el color de peligro. */
+.login__error {
+  color: var(--peligro-texto);
+  font-size: 0.9375rem;
+}
+
+.login__error:empty {
+  display: none;
+}
+
+/* Botón principal con el degradé dorado (DS5). */
+.login__boton {
+  min-height: 48px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: var(--radio-md);
+  background: var(--degrade-dorado);
+  color: var(--azul-900);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Mientras espera respuesta: se ve inactivo y no acepta otro envío. */
+.login__boton:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* =========================================================================================
+ * Mensaje de arranque (prompt 2)
+ * Lo muestra el router si falta la configuración o no se pudo cargar la app.
+ * ======================================================================================= */
+
+.arranque {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: var(--azul-850);
+}
+
+.arranque__tarjeta {
+  width: 100%;
+  max-width: 400px;
+  padding: 28px 20px;
+  background: var(--azul-panel);
+  border-radius: var(--radio-lg);
+  text-align: center;
+}
+
+.arranque__titulo {
+  margin-bottom: 12px;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.arranque__detalle {
+  color: var(--texto-suave);
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================================================
+ * Inicio provisional (prompt 2) — PROVISIONAL HASTA EL PROMPT 4, se borra con su pantalla.
+ * ======================================================================================= */
+
+.inicio-provisional {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: var(--azul-850);
+}
+
+.inicio-provisional__tarjeta {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+  padding: 28px 20px;
+  background: var(--azul-panel);
+  border-radius: var(--radio-lg);
+  text-align: center;
+}
+
+/* El email puede ser largo: se corta en cualquier punto antes que desbordar a 390 px. */
+.inicio-provisional__texto {
+  overflow-wrap: anywhere;
+}
+
+/* Botón secundario: contorno en lugar de degradé, porque no es la acción principal. */
+.inicio-provisional__boton {
+  min-height: var(--toque-min);
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--texto-tenue);
+  border-radius: var(--radio-md);
+  font-weight: 600;
+  cursor: pointer;
 }

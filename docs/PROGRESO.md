@@ -1,13 +1,21 @@
 # Progreso — Banco de Apuntes
 
 ## Estado actual
-- Último prompt ejecutado: 1 — Base de datos
+- Último prompt ejecutado: 2 — Login y sesión
 - Prompt 1: **cerrado** el 2026-11-17.
-- Qué funciona hoy: esqueleto del proyecto (prompt 0) y la base de datos en Supabase:
-  tablas `perfiles` e `items`, triggers de integridad y RLS (`001-perfiles.sql` y
-  `002-items.sql`, aplicadas y verificadas), documentadas en `docs/base-de-datos.md`.
-  Registro público de Supabase Auth desactivado (BD4) y primer admin creado (BD3).
-- Qué falta / próximo paso: prompt 2.
+- Prompt 2: **implementado** el 2026-11-17; esperando que Iñaki pegue los valores en
+  `js/core/config.js` y pruebe los criterios de terminado.
+- Qué funciona hoy: esqueleto del proyecto (prompt 0); base de datos en Supabase (prompt 1:
+  `perfiles`, `items`, triggers y RLS, aplicadas y verificadas; registro público desactivado
+  y primer admin creado); login con email y contraseña, "Recordarme", cierre por
+  inactividad, guardia de rutas por hash e inicio provisional con email y rol (prompt 2).
+- Qué falta / próximo paso: criterios de terminado del prompt 2; después, prompt 3.
+
+## Dependencias
+
+| Dependencia | Dónde | Versión | Por qué |
+|---|---|---|---|
+| `@supabase/supabase-js` | Frontend, por CDN (jsDelivr `+esm`), solo en `js/core/supabase.js` | **2.119.0** (exacta; última 2.x estable al 2026-11-17, verificada con `npm view`) | Cliente oficial de Supabase Auth y Postgres (AT2). Única dependencia del frontend (LS2). |
 
 ## Migraciones aplicadas
 Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
@@ -19,6 +27,53 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
 | Primer admin (`supabase/manual/hacer-admin.sql`) | 2026-11-17 | Devolvió una fila con `rol = admin` |
 
 ## Bitácora (más reciente arriba)
+
+### 2026-11-17 — Prompt 2: login y sesión
+- Hecho:
+  - `js/core/config.js`: `SUPABASE_URL` y `SUPABASE_PUBLISHABLE_KEY` con marcadores
+    (`PEGAR_URL_AQUI`, `PEGAR_PUBLISHABLE_KEY_AQUI`), `MINUTOS_INACTIVIDAD = 30`, `RUTA_API`
+    y `configuracionCompleta()`. Con marcadores, la app muestra "Falta configurar la app".
+  - `js/core/supabase.js`: importa `createClient` de supabase-js **2.119.0** desde jsDelivr
+    (`+esm`); cliente único con adaptador de almacenamiento: `localStorage` con
+    "Recordarme", `sessionStorage` sin él (LS3). Preferencia en `banco-apuntes:recordarme`.
+  - `js/modulos/auth/`: `servicio.js` (iniciarSesion, cerrarSesion, obtenerSesion,
+    obtenerPerfil, alCambiarSesion, restaurarSesion, errores en español),
+    `inactividad.js` (cierre a los 30 minutos sin uso, solo sin "Recordarme"),
+    `pantalla-login.js`, `inicio-provisional.js` (provisional hasta el prompt 4) e
+    `index.js`.
+  - `js/core/router.js`: ruteo por hash con tabla de rutas, guardia de sesión, sin
+    parpadeo de pantallas privadas al arrancar, ruta desconocida → `#/`, mensaje si no
+    carga la app.
+  - `index.html`: `#app` arranca vacío (antes mostraba la portada provisional).
+  - `css/componentes.css`: secciones "Login", "Mensaje de arranque" e "Inicio provisional";
+    se quitó la portada del prompt 0.
+  - Docs: `CLAUDE.md` (Seguridad y Stack), `docs/modulos/auth.md`, `docs/arquitectura.md`
+    (flujo de login y ruteo por hash), `docs/decisiones.md` (tabla "Detalle de AT2 — Login
+    y sesión" con LS1–LS4).
+  - Verificado: todos los JS parsean; en Edge headless, con marcadores aparece el mensaje
+    de configuración, y con una URL de prueba supabase-js carga desde el CDN y
+    `#/cualquier-cosa` lleva al login; captura a 390 px correcta. El login real lo prueba
+    Iñaki con sus valores.
+- Archivos: `js/core/config.js`, `js/core/supabase.js`, `js/core/router.js`,
+  `js/modulos/auth/{index, servicio, inactividad, pantalla-login, inicio-provisional}.js`,
+  `index.html`, `css/componentes.css`, `CLAUDE.md`, `docs/modulos/auth.md`,
+  `docs/arquitectura.md`, `docs/decisiones.md`, `docs/PROGRESO.md`.
+- Decisiones o cambios:
+  - Nuevas LS1–LS4 (detalle de AT2). La regla de claves de `CLAUDE.md` pasa a LS1.
+  - Dependencia nueva: supabase-js 2.119.0 por CDN (ver "Dependencias").
+  - Criterios de implementación propios (no cambian decisiones): "Cerrar sesión" usa
+    `scope: 'local'` (no cierra las sesiones del usuario en otros dispositivos); si el
+    cierre falla sin conexión, se borra la sesión guardada a mano y se recarga en el login.
+    Cualquier rechazo 400 de Supabase (email sin confirmar, cuenta bloqueada) muestra el
+    mismo mensaje que credenciales inválidas, para no revelar si el email existe.
+- Pendientes / dudas para Iñaki:
+  - Pegar la URL y la publishable key en `js/core/config.js` y probar los criterios de
+    terminado.
+  - Sin "Recordarme", la sesión es por pestaña: abrir la app en otra pestaña pide login.
+    Es consecuencia de LS3 (`sessionStorage`).
+  - Si el navegador restaura la sesión anterior al abrir ("Continuar donde lo dejaste"),
+    también restaura `sessionStorage` y la sesión sin "Recordarme" puede seguir abierta;
+    igual la cierra la inactividad pasados los 30 minutos.
 
 ### 2026-11-17 — Criterios de terminado del prompt 1
 - Hecho: Iñaki pasó los criterios de terminado del prompt 1, que habían llegado vacíos, y

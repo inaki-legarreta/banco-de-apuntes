@@ -23,6 +23,9 @@ silencio.
 - **Prohibido:** frameworks, bundlers o cualquier paso de compilación, TypeScript, librerías
   de UI. El frontend no usa npm; `package.json` existe solo para las funciones de `/api`.
 - **Toda dependencia nueva** (frontend o `/api`) se justifica en `docs/PROGRESO.md`.
+- **supabase-js** se carga por CDN (jsDelivr) con **versión fija** (LS2) y es la **única
+  dependencia del frontend**. Solo la importa `js/core/supabase.js`. Cambiar la versión se
+  anota en `docs/PROGRESO.md`.
 
 ## Convenciones
 - Archivos y carpetas: en **español** y en **kebab-case** (`arbol-carpetas.js`).
@@ -53,11 +56,12 @@ silencio.
 - Lo que no es núcleo va en un módulo separable.
 
 ## Seguridad
-- **Nunca** claves en el código ni en el repo. Los valores reales van solo en `.env` local
-  (ignorado por git) y en las variables de entorno de Vercel.
+- La URL de Supabase y la publishable key viven en `js/core/config.js` (son públicas por
+  diseño; la protección es RLS, LS1). La **secret key** y las **claves de R2** existen
+  **solo en `/api`** (servidor), nunca en el frontend ni en el repo.
+- Los valores de `/api` van solo en `.env` local (ignorado por git) y en las variables de
+  entorno de Vercel.
 - **Nunca leer, mostrar ni copiar el contenido de `.env`.**
-- La **service role key de Supabase** y las **claves de R2** existen **solo en `/api`**
-  (servidor). El navegador solo conoce la URL de Supabase y la clave pública (anon).
 - Sin sesión no se ve nada (RNF5): toda lectura de datos requiere usuario autenticado y toda
   escritura requiere rol admin, validado en la base (RLS) y en `/api`.
 

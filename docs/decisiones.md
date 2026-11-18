@@ -169,6 +169,15 @@ Fase de diseño — **en curso**. Maqueta: "Banco de Apuntes — Maqueta" (canva
 | BD3 | Toda cuenta nueva nace como lector. El primer admin se marca a mano con SQL, una sola vez. |
 | BD4 | El registro público de Supabase Auth está desactivado (D5). Las cuentas las crea el admin (prompt 9). |
 
+### Detalle de AT2 — Login y sesión
+
+| # | Decisión |
+|---|---|
+| LS1 | La URL de Supabase y la publishable key van en js/core/config.js, dentro del repo: son públicas por diseño y la protección de los datos es RLS. La secret key y las claves de R2 viven solo en /api. |
+| LS2 | supabase-js se carga desde jsDelivr con versión exacta (sin npm en el frontend). Es la única dependencia del frontend. |
+| LS3 | Sin "Recordarme", la sesión vive en sessionStorage (se cierra al cerrar el navegador) y se cierra sola tras 30 minutos sin uso. Con "Recordarme", vive en localStorage y no se cierra por inactividad: dura hasta cerrar sesión. |
+| LS4 | No hay "Olvidé mi contraseña" en la v1. Si un usuario la olvida, el admin le pone una nueva desde el panel admin (prompt 9). |
+
 ## Etapa 6 — Prompts para Claude Code (EN CURSO)
 
 | # | Decisión |

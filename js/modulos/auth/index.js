@@ -1,10 +1,9 @@
 /*
  * modulos/auth/index.js — Punto de entrada público del módulo "auth".
- * Responsabilidad: manejar el inicio y cierre de sesión, la sesión activa y el rol del usuario (admin o lector).
+ * Responsabilidad: manejar el inicio y cierre de sesión, la sesión activa, el cierre por
+ * inactividad y el rol del usuario (admin o lector).
  * Todo lo que otros módulos o el router usen de "auth" se importa desde este archivo.
  * Documentación: docs/modulos/auth.md
- *
- * Esqueleto (prompt 0): sin lógica. Se implementa en el prompt 2.
  */
 
 /**
@@ -12,3 +11,19 @@
  * Existe para identificarlo en logs y en el registro de rutas sin escribir el texto a mano.
  */
 export const nombreModulo = 'auth';
+
+// Servicio: lo único del módulo que habla con Supabase.
+export {
+  iniciarSesion,
+  cerrarSesion,
+  obtenerSesion,
+  obtenerPerfil,
+  alCambiarSesion,
+  restaurarSesion,
+  ErrorAuth,
+} from './servicio.js';
+
+// Pantallas.
+export { montarPantallaLogin } from './pantalla-login.js';
+// PROVISIONAL hasta el prompt 4 (lo reemplaza la home de carreras del explorador).
+export { montarInicioProvisional } from './inicio-provisional.js';

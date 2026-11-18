@@ -47,7 +47,7 @@ verdad). Si este documento y `decisiones.md` no coinciden, manda `decisiones.md`
 ```
 
 ### Flujos principales
-1. **Leer el árbol / buscar:** navegador → Supabase directo, con la clave anon y la sesión
+1. **Leer el árbol / buscar:** navegador → Supabase directo, con la publishable key y la sesión
    del usuario. RLS bloquea todo si no hay sesión (RNF5).
 2. **Escribir metadatos (crear, renombrar, mover, borrar):** navegador → Supabase; RLS solo
    lo permite si el perfil es admin.
@@ -59,13 +59,55 @@ verdad). Si este documento y `decisiones.md` no coinciden, manda `decisiones.md`
    el dispositivo (AT7), avisando el peso antes (RNF9).
 6. **Cuentas de lectores:** navegador (admin) → `/api` → API de administración de Supabase
    con la service role key (RF2).
+7. **Login y sesión:** ver la sección siguiente.
+
+## Login y sesión (prompt 2, LS1–LS4)
+
+```
+index.html ─► js/core/router.js
+                 │ 1. ¿config.js completo?  no ─► mensaje "Falta configurar la app"
+                 │ 2. import del módulo auth (trae supabase-js de jsDelivr, versión fija)
+                 │      falla ─► mensaje "No se pudo cargar la app"
+                 │ 3. auth.restaurarSesion(): sesión guardada, salvo vencida por inactividad
+                 │ 4. recién ahí resuelve la ruta (antes #app está vacío: sin parpadeo)
+                 ▼
+          ┌─ sin sesión ─► #/login ─► pantalla-login ─► servicio.iniciarSesion
+          │                                               └─► Supabase Auth (email + contraseña)
+          └─ con sesión ─► #/ (provisional) ─► servicio.obtenerPerfil ─► tabla perfiles (RLS)
+
+Cambios de sesión (login, logout, otra pestaña, token vencido, inactividad):
+supabase-js ─► servicio (re-lee la sesión) ─► router: vacía #app y vuelve a aplicar la guardia
+```
+
+- **Sesión:** la guarda supabase-js mediante un adaptador: `sessionStorage` sin
+  "Recordarme" (se cierra con el navegador y por 30 minutos de inactividad) y `localStorage`
+  con "Recordarme" (dura hasta cerrar sesión). Detalle en
+  [`modulos/auth.md`](modulos/auth.md).
+- **Cerrar sesión** cierra solo la sesión de este dispositivo (`scope: 'local'`).
+
+## Ruteo por hash
+
+El hosting es estático y sin compilación (AT1, AT4): el servidor siempre entrega
+`index.html` y la ruta va después del `#` (`#/login`, `#/`, y más adelante `#/carpeta/<id>`,
+`#/buscar`, `#/admin`). `js/core/router.js` tiene una **tabla de rutas** (patrón, si es
+pública y qué pantalla carga); sumar una pantalla es sumar una entrada.
+
+Guardia (RNF5), aplicada en cada cambio de ruta y de sesión:
+- Sin sesión, cualquier ruta privada lleva a `#/login`. Todas las rutas son privadas salvo
+  que se marquen `publica`.
+- Con sesión, `#/login` lleva a `#/`.
+- Una ruta desconocida lleva a `#/`.
+- Las redirecciones reemplazan la entrada del historial (`location.replace`), así el botón
+  Atrás no vuelve a una pantalla rechazada. Al perder la sesión, `#app` se vacía antes de
+  navegar.
+- Cada pantalla se importa recién cuando se necesita (`import()` dinámico).
 
 ## Dónde vive cada secreto
 
 | Valor | Navegador | `/api` |
 |---|---|---|
-| `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Sí (públicos, protegidos por RLS) | Sí |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Nunca** | Sí |
+| URL de Supabase y publishable key (`sb_publishable_...`) | Sí, en `js/core/config.js` (públicas por diseño, protegidas por RLS, LS1) | Sí (`SUPABASE_URL`, `SUPABASE_ANON_KEY` en `.env`) |
+| Secret key (`sb_secret_...`, `SUPABASE_SERVICE_ROLE_KEY`) | **Nunca** | Sí |
 | `R2_*` | **Nunca** | Sí |
 
 ## Estructura del repo (AT4)

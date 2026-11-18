@@ -28,9 +28,10 @@
     <script type="module" src="js/core/router.js"></script>
   </head>
   <body>
-    <!-- Contenedor donde el router montará las pantallas. Por ahora, portada provisional. -->
-    <main id="app" class="portada">
-      <h1 class="portada__titulo">Banco de Apuntes</h1>
-    </main>
+    <!--
+      Contenedor donde el router monta las pantallas. Arranca vacío a propósito: no se
+      muestra nada hasta saber si hay sesión (RNF5).
+    -->
+    <main id="app" aria-busy="true"></main>
   </body>
 </html>
