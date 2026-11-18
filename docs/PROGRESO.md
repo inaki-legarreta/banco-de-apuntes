@@ -3,13 +3,12 @@
 ## Estado actual
 - Último prompt ejecutado: 2 — Login y sesión
 - Prompt 1: **cerrado** el 2026-11-17.
-- Prompt 2: **implementado** el 2026-11-17, con los valores reales en `js/core/config.js`;
-  esperando que Iñaki pruebe los criterios de terminado.
+- Prompt 2: **cerrado** el 2026-11-17.
 - Qué funciona hoy: esqueleto del proyecto (prompt 0); base de datos en Supabase (prompt 1:
   `perfiles`, `items`, triggers y RLS, aplicadas y verificadas; registro público desactivado
   y primer admin creado); login con email y contraseña, "Recordarme", cierre por
   inactividad, guardia de rutas por hash e inicio provisional con email y rol (prompt 2).
-- Qué falta / próximo paso: criterios de terminado del prompt 2; después, prompt 3.
+- Qué falta / próximo paso: prompt 3.
 
 ## Dependencias
 
@@ -27,6 +26,29 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
 | Primer admin (`supabase/manual/hacer-admin.sql`) | 2026-11-17 | Devolvió una fila con `rol = admin` |
 
 ## Bitácora (más reciente arriba)
+
+### 2026-11-17 — Cierre del prompt 2: criterios de terminado
+- Hecho: Iñaki probó con `npx serve` en `http://localhost:3000` y confirmó que se cumplen
+  todos:
+  - [x] Sin sesión, cualquier URL (`#/`, `#/cualquier-cosa`) lleva al login y no se ve nada
+    privado.
+  - [x] Con email o contraseña incorrectos aparece el mensaje en español, sin decir cuál
+    falló.
+  - [x] Con datos correctos llega al inicio provisional, con su email y el rol admin.
+  - [x] Recargar la página mantiene la sesión.
+  - [x] Sin "Recordarme": al cerrar todas las ventanas y volver, pide login; con
+    `MINUTOS_INACTIVIDAD` en 1, la sesión se cierra sola con el aviso de inactividad.
+    `MINUTOS_INACTIVIDAD` volvió a 30.
+  - [x] Con "Recordarme": al cerrar y reabrir el navegador sigue la sesión y no se cierra
+    por inactividad.
+  - [x] "Cerrar sesión" vuelve al login y el botón Atrás no muestra la pantalla privada.
+  - [x] A 390 px se ve bien y sin zoom (C5).
+  - [x] Documentación actualizada, PROGRESO.md registra el prompt, push hecho.
+- Archivos: `docs/PROGRESO.md`.
+- Decisiones o cambios: ninguno.
+- Pendientes / dudas para Iñaki: ninguno nuevo. Quedan como información (no como tareas)
+  las dos notas de la entrada "Prompt 2: login y sesión": sesión por pestaña sin
+  "Recordarme" y restauración de `sessionStorage` por el navegador.
 
 ### 2026-11-17 — Prompt 2: valores reales en config.js
 - Hecho: Iñaki pegó la URL del proyecto y la publishable key en `js/core/config.js` (LS1).
