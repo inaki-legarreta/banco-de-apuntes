@@ -1,18 +1,17 @@
 # Progreso — Banco de Apuntes
 
 ## Estado actual
-- Último prompt ejecutado: 3 — Estilos y estructura de pantalla (esperando los criterios
-  de terminado de Iñaki)
+- Último prompt ejecutado: 3 — Estilos y estructura de pantalla
 - Prompt 1: **cerrado** el 2026-11-17.
 - Prompt 2: **cerrado** el 2026-11-17.
+- Prompt 3: **cerrado** el 2026-11-18.
 - Qué funciona hoy: esqueleto del proyecto (prompt 0); base de datos en Supabase (prompt 1:
   `perfiles`, `items`, triggers y RLS, aplicadas y verificadas; registro público desactivado
   y primer admin creado); login con email y contraseña, "Recordarme", cierre por
   inactividad y guardia de rutas por hash (prompt 2); estructura de pantalla, componentes de
   `js/ui/`, hoja "Cuenta", inicio con estado vacío, `#/admin` provisional y muestrario
   (prompt 3).
-- Qué falta / próximo paso: que Iñaki pruebe los criterios de terminado del prompt 3;
-  después, prompt 4.
+- Qué falta / próximo paso: prompt 4 (explorador).
 
 ## Dependencias
 
@@ -30,6 +29,15 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
 | Primer admin (`supabase/manual/hacer-admin.sql`) | 2026-11-17 | Devolvió una fila con `rol = admin` |
 
 ## Bitácora (más reciente arriba)
+
+### 2026-11-18 — Cierre del prompt 3: criterios de terminado
+- Hecho: Iñaki probó los criterios de terminado 1–8 del prompt 3 y confirmó que se cumplen
+  todos, incluido el login con los estilos nuevos (que yo no había podido capturar).
+- Archivos: `docs/PROGRESO.md`.
+- Decisiones o cambios: ninguno.
+- Pendientes / dudas para Iñaki: se cierran "Probar los criterios de terminado del prompt
+  3" y la captura del login. Sigue abierto el de `innerHTML` en el router y el login: lo
+  resuelve el prompt 4.
 
 ### 2026-11-18 — Prompt 3: estilos y estructura de pantalla
 - Hecho:
