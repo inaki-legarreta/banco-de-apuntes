@@ -11,6 +11,14 @@
 
 ## Bitácora (más reciente arriba)
 
+### 2026-11-17 — README.md reescrito en UTF-8
+- Hecho: se reescribió `README.md` en UTF-8 (antes estaba en UTF-16, git lo trataba como
+  binario y GitHub lo mostraba mal). Contiene qué es el proyecto, el stack, cómo levantarlo en
+  local con `npx serve` y dónde está la documentación (`decisiones.md` como fuente de verdad).
+- Archivos: `README.md`, `docs/PROGRESO.md`.
+- Decisiones o cambios: ninguno.
+- Pendientes / dudas para Iñaki: ninguno nuevo.
+
 ### 2026-11-17 — CLAUDE.md: forma de trabajo y regla de .env
 - Hecho: se agregó a `CLAUDE.md` la sección "Forma de trabajo": leer `docs/PROGRESO.md` al
   iniciar cada sesión, hacer solo lo que pide el prompt actual (lo demás se anota como
