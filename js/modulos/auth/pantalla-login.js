@@ -9,6 +9,7 @@
  */
 
 import { iniciarSesion, consumirAvisoCierre, ErrorAuth } from './servicio.js';
+import { crearIcono } from '../../ui/iconos.js';
 
 /**
  * Estructura fija de la pantalla. No contiene datos: los textos variables (aviso y error)
@@ -17,18 +18,21 @@ import { iniciarSesion, consumirAvisoCierre, ErrorAuth } from './servicio.js';
 const PLANTILLA = `
   <section class="login" aria-labelledby="login-titulo">
     <div class="login__tarjeta">
-      <h1 id="login-titulo" class="login__titulo">Banco de Apuntes</h1>
+      <div class="login__marca">
+        <span class="login__marca-icono" aria-hidden="true"></span>
+        <h1 id="login-titulo" class="login__titulo">Banco de Apuntes</h1>
+      </div>
       <p class="login__aviso" role="status" hidden></p>
       <form class="login__formulario" novalidate>
-        <div class="login__campo">
-          <label class="login__etiqueta" for="login-email">Email</label>
-          <input class="login__entrada" id="login-email" name="email" type="email"
+        <div class="campo">
+          <label class="campo__etiqueta" for="login-email">Email</label>
+          <input class="campo__entrada" id="login-email" name="email" type="email"
             autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false"
             required />
         </div>
-        <div class="login__campo">
-          <label class="login__etiqueta" for="login-contrasena">Contraseña</label>
-          <input class="login__entrada" id="login-contrasena" name="contrasena" type="password"
+        <div class="campo">
+          <label class="campo__etiqueta" for="login-contrasena">Contraseña</label>
+          <input class="campo__entrada" id="login-contrasena" name="contrasena" type="password"
             autocomplete="current-password" required />
         </div>
         <label class="login__casilla">
@@ -39,7 +43,7 @@ const PLANTILLA = `
           </span>
         </label>
         <p class="login__error" aria-live="polite"></p>
-        <button class="login__boton" type="submit">Ingresar</button>
+        <button class="boton boton--principal" type="submit">Ingresar</button>
       </form>
     </div>
   </section>
@@ -57,6 +61,10 @@ const MENSAJE_INCOMPLETO = 'Completá el email y la contraseña.';
  */
 export function montarPantallaLogin(contenedor) {
   contenedor.innerHTML = PLANTILLA;
+  // El ícono de libro sale de iconos.js, igual que en el encabezado de las demás pantallas.
+  contenedor
+    .querySelector('.login__marca-icono')
+    .append(crearIcono('libro', { tamano: 28, grosor: 2.2 }));
 
   const formulario = contenedor.querySelector('.login__formulario');
   const email = formulario.elements.namedItem('email');
@@ -64,7 +72,7 @@ export function montarPantallaLogin(contenedor) {
   const recordarme = formulario.elements.namedItem('recordarme');
   const zonaError = contenedor.querySelector('.login__error');
   const zonaAviso = contenedor.querySelector('.login__aviso');
-  const boton = formulario.querySelector('.login__boton');
+  const boton = formulario.querySelector('button[type="submit"]');
 
   // Aviso de por qué se cerró la sesión anterior (por ejemplo, inactividad), una sola vez.
   const aviso = consumirAvisoCierre();

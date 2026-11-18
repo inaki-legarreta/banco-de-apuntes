@@ -215,6 +215,7 @@ export async function cerrarSesion(motivo = 'usuario') {
   olvidarActividad();
   guardarAvisoCierre(motivo);
   cierrePropio = true;
+  perfilEnCache = null;
 
   let error;
   try {
@@ -233,8 +234,17 @@ export async function cerrarSesion(motivo = 'usuario') {
 }
 
 /**
+ * Perfil ya leído de la sesión actual, para no consultar la base en cada navegación (la
+ * guardia de rutas de admin y la hoja "Cuenta" lo piden seguido).
+ * Se descarta cuando cambia el usuario de la sesión o se cierra (procesarCambio).
+ * @type {{ idUsuario: string, promesa: Promise<object> } | null}
+ */
+let perfilEnCache = null;
+
+/**
  * Devuelve el perfil del usuario de la sesión: email y rol (leído de su fila en perfiles,
- * que RLS deja leer solo a su dueño). Devuelve null si no hay sesión.
+ * que RLS deja leer solo a su dueño). Devuelve null si no hay sesión. Se guarda en caché
+ * mientras dure la sesión de ese usuario; un error no queda en caché.
  * @returns {Promise<{ id: string, email: string, rol: 'admin' | 'lector' | null } | null>}
  * @throws {ErrorAuth} si no se pudo leer.
  */
@@ -242,6 +252,33 @@ export async function obtenerPerfil() {
   const sesion = await obtenerSesion();
   if (!sesion) return null;
 
+  if (perfilEnCache?.idUsuario !== sesion.user.id) {
+    const promesa = leerPerfil(sesion);
+    perfilEnCache = { idUsuario: sesion.user.id, promesa };
+    promesa.catch(() => {
+      if (perfilEnCache?.promesa === promesa) perfilEnCache = null;
+    });
+  }
+  return perfilEnCache.promesa;
+}
+
+/**
+ * Indica si el usuario de la sesión es admin. Si no hay sesión o no se pudo leer el rol,
+ * devuelve false (ante la duda, sin botones ni pantallas de admin).
+ * Ocultar cosas según el rol es solo comodidad: la protección real es RLS (AT5).
+ * @returns {Promise<boolean>}
+ */
+export async function esAdmin() {
+  try {
+    const perfil = await obtenerPerfil();
+    return perfil?.rol === 'admin';
+  } catch {
+    return false;
+  }
+}
+
+/** Lee el rol de la fila propia en perfiles (la consulta real detrás de obtenerPerfil). */
+async function leerPerfil(sesion) {
   let respuesta;
   try {
     respuesta = await supabase
@@ -279,6 +316,7 @@ async function procesarCambio(evento) {
   const haySesion = Boolean(sesion);
 
   if (habiaSesion && !haySesion && !cierrePropio) guardarAvisoCierre('externo');
+  if (perfilEnCache && perfilEnCache.idUsuario !== sesion?.user?.id) perfilEnCache = null;
   if (!haySesion) cierrePropio = false;
   habiaSesion = haySesion;
 

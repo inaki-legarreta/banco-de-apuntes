@@ -146,6 +146,12 @@ Fase de diseño — **en curso**. Maqueta: "Banco de Apuntes — Maqueta" (canva
 | DS5 | **Identidad visual: variante A "Sobrio".** Azules oscuros (#0A1426–#0F1C36), dorado en degradé (#F0D394 → #C99A4B) solo en acentos (íconos de carpeta, ruta, botón principal), tipografía Manrope, lista estilo Drive, botones de admin fijos al pie. |
 | DS6 | **Escritorio:** barra lateral con el árbol de carpetas y contenido en tabla. |
 
+### Detalle de DS — Estructura de pantalla
+
+| # | Decisión |
+|---|---|
+| EP1 | El botón de cuenta del encabezado abre, para todos, una hoja "Cuenta" con el email, "Panel admin" (solo admin) y "Cerrar sesión". "Cerrar sesión" sale del Panel admin de la maqueta. |
+
 ## Etapa 5 — Arquitectura técnica (CERRADA · 2026-11-17)
 
 | # | Decisión |
@@ -177,6 +183,8 @@ Fase de diseño — **en curso**. Maqueta: "Banco de Apuntes — Maqueta" (canva
 | LS2 | supabase-js se carga desde jsDelivr con versión exacta (sin npm en el frontend). Es la única dependencia del frontend. |
 | LS3 | Sin "Recordarme", la sesión vive en sessionStorage (se cierra al cerrar el navegador) y se cierra sola tras 30 minutos sin uso. Con "Recordarme", vive en localStorage y no se cierra por inactividad: dura hasta cerrar sesión. |
 | LS4 | No hay "Olvidé mi contraseña" en la v1. Si un usuario la olvida, el admin le pone una nueva desde el panel admin (prompt 9). |
+| LS5 | "Cerrar sesión" cierra solo la sesión de ese dispositivo; las de otros dispositivos siguen abiertas. |
+| LS6 | Sin "Recordarme", la sesión vale solo en esa pestaña: otra pestaña pide login (consecuencia de LS3). |
 
 ## Etapa 6 — Prompts para Claude Code (EN CURSO)
 

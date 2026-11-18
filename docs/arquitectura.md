@@ -73,7 +73,7 @@ index.html ─► js/core/router.js
                  ▼
           ┌─ sin sesión ─► #/login ─► pantalla-login ─► servicio.iniciarSesion
           │                                               └─► Supabase Auth (email + contraseña)
-          └─ con sesión ─► #/ (provisional) ─► servicio.obtenerPerfil ─► tabla perfiles (RLS)
+          └─ con sesión ─► #/ (inicio, dentro de la estructura de pantalla)
 
 Cambios de sesión (login, logout, otra pestaña, token vencido, inactividad):
 supabase-js ─► servicio (re-lee la sesión) ─► router: vacía #app y vuelve a aplicar la guardia
@@ -83,19 +83,58 @@ supabase-js ─► servicio (re-lee la sesión) ─► router: vacía #app y vue
   "Recordarme" (se cierra con el navegador y por 30 minutos de inactividad) y `localStorage`
   con "Recordarme" (dura hasta cerrar sesión). Detalle en
   [`modulos/auth.md`](modulos/auth.md).
-- **Cerrar sesión** cierra solo la sesión de este dispositivo (`scope: 'local'`).
+- **Cerrar sesión** (hoja "Cuenta", EP1) cierra solo la sesión de este dispositivo
+  (`scope: 'local'`, LS5).
+
+## Estructura de pantalla (prompt 3)
+
+Todas las rutas privadas se ven dentro de la misma estructura (`js/ui/pantalla.js`); el
+login va sin ella. Detalle de cada componente en [`ui.md`](ui.md).
+
+```
+┌──────────────────────────────┐  100dvh, columna centrada (máx. 560 px hasta el prompt 10)
+│ [libro] Banco de Apuntes  (👤)│  encabezado fijo: marca → #/, botón de cuenta → hoja "Cuenta"
+│ [🔍 Buscar en el banco      ] │  buscador SOLO VISUAL hasta el prompt 8
+├──────────────────────────────┤  borde dorado suave
+│                              │
+│  contenido de la vista       │  lo único que scrollea
+│  (título, ruta, lista…)      │
+│                              │
+├──────────────────────────────┤
+│ [Secundario]  [ Principal ]  │  pie opcional (si la vista lo pide), + safe-area-inset-bottom
+└──────────────────────────────┘
+   hojas, diálogos y avisos se montan al final de <body>, encima de todo
+```
+
+- El router crea la estructura una vez y la reutiliza entre rutas privadas (`reiniciar()`
+  vacía el contenido y oculta el pie). Cada vista recibe `(contenido, { parametros,
+  pantalla })` y puede pedir el pie con `pantalla.definirPie(...)`.
+- El botón de cuenta llama a `auth.abrirHojaCuenta()` (el router hace la conexión, así
+  `js/ui/` no depende de ningún módulo).
+- En cada cambio de ruta se cierran las hojas o diálogos abiertos. Al perder la sesión
+  además se borran los avisos y la estructura (RNF5).
 
 ## Ruteo por hash
 
 El hosting es estático y sin compilación (AT1, AT4): el servidor siempre entrega
-`index.html` y la ruta va después del `#` (`#/login`, `#/`, y más adelante `#/carpeta/<id>`,
-`#/buscar`, `#/admin`). `js/core/router.js` tiene una **tabla de rutas** (patrón, si es
+`index.html` y la ruta va después del `#` (`#/login`, `#/`, `#/admin`, `#/muestrario`, y
+más adelante `#/carpeta/<id>` y `#/buscar`).
+
+| Ruta | Pantalla | Acceso |
+|---|---|---|
+| `#/login` | Login (`auth`), sin estructura de pantalla | Pública; con sesión lleva a `#/` |
+| `#/` | Inicio: home de carreras (`explorador`) | Con sesión |
+| `#/admin` | Panel admin: **provisional hasta el prompt 9** (`admin`) | Solo admin |
+| `#/muestrario` | Muestrario de componentes: **provisional, se borra en el prompt 11** (`js/muestrario/`) | Solo admin | `js/core/router.js` tiene una **tabla de rutas** (patrón, si es
 pública y qué pantalla carga); sumar una pantalla es sumar una entrada.
 
 Guardia (RNF5), aplicada en cada cambio de ruta y de sesión:
 - Sin sesión, cualquier ruta privada lleva a `#/login`. Todas las rutas son privadas salvo
   que se marquen `publica`.
 - Con sesión, `#/login` lleva a `#/`.
+- Una ruta `soloAdmin`, para quien no es admin (o si no se pudo leer el rol), lleva a `#/`.
+  Es comodidad: la protección real de los datos es RLS. El rol se lee una vez por sesión
+  (`auth.esAdmin()`, con caché).
 - Una ruta desconocida lleva a `#/`.
 - Las redirecciones reemplazan la entrada del historial (`location.replace`), así el botón
   Atrás no vuelve a una pantalla rechazada. Al perder la sesión, `#app` se vacía antes de
@@ -117,7 +156,8 @@ index.html                 Punto de entrada; carga estilos y js/core/router.js
 css/                       tokens.css (DS5), base.css, componentes.css
 js/core/                   config.js, supabase.js, router.js (transversal)
 js/modulos/<nombre>/       auth, explorador, archivos, busqueda, admin
-js/ui/                     componentes de interfaz compartidos
+js/ui/                     componentes de interfaz compartidos (docs/ui.md)
+js/muestrario/             muestrario de componentes (provisional, se borra en el prompt 11)
 api/                       funciones serverless de Vercel (secretos)
 supabase/migraciones/      SQL versionado del esquema
 docs/                      decisiones, arquitectura, progreso, doc por módulo

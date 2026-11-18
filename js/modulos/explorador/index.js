@@ -4,7 +4,8 @@
  * Todo lo que otros módulos o el router usen de "explorador" se importa desde este archivo.
  * Documentación: docs/modulos/explorador.md
  *
- * Esqueleto (prompt 0): sin lógica. Se implementa en el prompt 4.
+ * Prompt 3: solo la estructura del inicio (sin datos). La navegación real llega en el
+ * prompt 4.
  */
 
 /**
@@ -12,3 +13,6 @@
  * Existe para identificarlo en logs y en el registro de rutas sin escribir el texto a mano.
  */
 export const nombreModulo = 'explorador';
+
+// Pantallas.
+export { montarPantallaInicio } from './pantalla-inicio.js';

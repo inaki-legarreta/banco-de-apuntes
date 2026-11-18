@@ -1,14 +1,18 @@
 # Progreso — Banco de Apuntes
 
 ## Estado actual
-- Último prompt ejecutado: 2 — Login y sesión
+- Último prompt ejecutado: 3 — Estilos y estructura de pantalla (esperando los criterios
+  de terminado de Iñaki)
 - Prompt 1: **cerrado** el 2026-11-17.
 - Prompt 2: **cerrado** el 2026-11-17.
 - Qué funciona hoy: esqueleto del proyecto (prompt 0); base de datos en Supabase (prompt 1:
   `perfiles`, `items`, triggers y RLS, aplicadas y verificadas; registro público desactivado
   y primer admin creado); login con email y contraseña, "Recordarme", cierre por
-  inactividad, guardia de rutas por hash e inicio provisional con email y rol (prompt 2).
-- Qué falta / próximo paso: prompt 3.
+  inactividad y guardia de rutas por hash (prompt 2); estructura de pantalla, componentes de
+  `js/ui/`, hoja "Cuenta", inicio con estado vacío, `#/admin` provisional y muestrario
+  (prompt 3).
+- Qué falta / próximo paso: que Iñaki pruebe los criterios de terminado del prompt 3;
+  después, prompt 4.
 
 ## Dependencias
 
@@ -26,6 +30,71 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
 | Primer admin (`supabase/manual/hacer-admin.sql`) | 2026-11-17 | Devolvió una fila con `rol = admin` |
 
 ## Bitácora (más reciente arriba)
+
+### 2026-11-18 — Prompt 3: estilos y estructura de pantalla
+- Hecho:
+  - `css/tokens.css`: valores de la maqueta con nombre en español (fondo de pantalla en
+    degradé, degradé dorado de íconos, velo, superficies, bordes, texto de diálogo, ícono
+    secundario, radios de 22 y 26 px, escala tipográfica, alturas de pie y hoja, ancho de
+    columna, duración de animaciones con 0 en reduced-motion).
+  - `css/base.css`: reset y estructura de pantalla (100dvh, encabezado y pie quietos,
+    contenido con scroll propio, columna centrada de 560 px en pantallas anchas).
+  - `css/componentes.css`: reescrito en secciones por componente (botón, campo, título,
+    ruta, ícono de item, lista, tarjeta, hoja, diálogo, estados, aviso, login, arranque,
+    hoja "Cuenta", provisional, muestrario). Solo tokens.
+  - `js/ui/`: `pantalla.js`, `iconos.js`, `ruta.js`, `titulo.js`, `lista.js`,
+    `tarjeta.js`, `hoja.js`, `dialogo.js`, `estados.js`, `aviso.js` y `capa-modal.js`
+    (accesibilidad compartida por la hoja y el diálogo: `inert`, Tab que da la vuelta,
+    Escape, velo, foco de vuelta).
+  - Router: las rutas privadas se montan dentro de la estructura de pantalla (que se
+    reutiliza entre rutas); bandera `soloAdmin` (un lector va a `#/`); rutas `#/admin` y
+    `#/muestrario`; cierra hojas y diálogos al navegar, y además avisos y estructura al
+    perder la sesión.
+  - `auth`: hoja "Cuenta" (`hoja-cuenta.js`, EP1), `esAdmin()` y caché del perfil por
+    sesión; el login usa `.campo`, `.boton` y el ícono de marca. Se borró
+    `inicio-provisional.js`.
+  - `explorador/pantalla-inicio.js`: inicio real ("Carreras", subtítulo, estado vacío
+    "Todavía no hay carreras"), sin consultar items.
+  - `admin/pantalla-provisional.js`: cuerpo provisional de `#/admin`.
+  - `js/muestrario/muestrario.js`: muestrario provisional con datos de ejemplo (única
+    excepción documentada a "los datos nunca se escriben a mano"; se borra en el prompt 11).
+  - Docs: `docs/ui.md` (nuevo), `docs/modulos/{auth, explorador, admin}.md`,
+    `docs/arquitectura.md`, `docs/decisiones.md`, `js/ui/README.md`.
+  - Verificado por mí: todos los JS parsean (`node --check`). Con una página de prueba
+    temporal (no commiteada) que monta la estructura sin login, en Edge headless dentro de
+    un iframe de 390 × 844: capturas del inicio, del muestrario, de la hoja, de los
+    diálogos y a 1280 px. Script de prueba: foco inicial, `#app` inerte, Tab y Shift+Tab
+    dan la vuelta, Escape cierra hoja y diálogo, el velo cierra la hoja y no el diálogo de
+    peligro, el foco vuelve al botón de origen. No pude probar con sesión real (login,
+    hoja "Cuenta" con datos reales, guardia de admin): eso lo prueba Iñaki.
+  - Corregido en el camino: desborde horizontal de nombres largos en grids
+    (`minmax(0, 1fr)`); el último tramo de la ruta se achicaba en lugar de colapsar los
+    del medio; filas del esqueleto angostas por `justify-items` heredado.
+- Archivos: `css/tokens.css`, `css/base.css`, `css/componentes.css`, `js/core/router.js`,
+  `js/ui/{pantalla, iconos, ruta, titulo, lista, tarjeta, hoja, dialogo, estados, aviso,
+  capa-modal}.js`, `js/ui/README.md`, `js/modulos/auth/{index, servicio, pantalla-login,
+  hoja-cuenta}.js`, `js/modulos/auth/inicio-provisional.js` (borrado),
+  `js/modulos/explorador/{index, pantalla-inicio}.js`,
+  `js/modulos/admin/{index, pantalla-provisional}.js`, `js/muestrario/muestrario.js`,
+  `docs/ui.md`, `docs/modulos/{auth, explorador, admin}.md`, `docs/arquitectura.md`,
+  `docs/decisiones.md`, `docs/PROGRESO.md`.
+- Decisiones o cambios:
+  - Nuevas LS5 y LS6 (tabla "Detalle de AT2 — Login y sesión") y EP1 (tabla nueva
+    "Detalle de DS — Estructura de pantalla"), tal como las confirmó Iñaki.
+  - Sin dependencias nuevas (íconos propios, sin librerías).
+  - Criterios de implementación propios (no cambian decisiones): el inicio vive en
+    `explorador` (el prompt 4 lo completa ahí); la guardia de admin está en el router,
+    junto a la de sesión; el muestrario vive en `js/muestrario/` porque no es un módulo ni
+    un componente; los íconos `escudo` y `salir` se sumaron para la hoja "Cuenta"; el
+    diálogo de aviso se cierra con el velo y el de peligro no; el foco de un diálogo
+    arranca en "Cancelar".
+- Pendientes / dudas para Iñaki:
+  - Probar los criterios de terminado del prompt 3.
+  - No pude sacar una captura del login con los estilos nuevos (el entorno no me dejó
+    levantar la app real); conviene mirarlo al probar.
+  - El router y el login todavía usan `innerHTML` con plantillas fijas, sin datos (son del
+    prompt 2). No es un riesgo, pero si se quiere la regla al pie de la letra en toda la
+    app, se pueden pasar a `createElement` en un prompt futuro.
 
 ### 2026-11-17 — Cierre del prompt 2: criterios de terminado
 - Hecho: Iñaki probó con `npx serve` en `http://localhost:3000` y confirmó que se cumplen

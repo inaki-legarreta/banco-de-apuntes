@@ -4,7 +4,7 @@
  * Todo lo que otros módulos o el router usen de "admin" se importa desde este archivo.
  * Documentación: docs/modulos/admin.md
  *
- * Esqueleto (prompt 0): sin lógica. Se implementa en el prompt 9.
+ * Prompt 3: solo el cuerpo provisional de #/admin. El panel real se implementa en el prompt 9.
  */
 
 /**
@@ -12,3 +12,6 @@
  * Existe para identificarlo en logs y en el registro de rutas sin escribir el texto a mano.
  */
 export const nombreModulo = 'admin';
+
+// PROVISIONAL HASTA EL PROMPT 9: cuerpo de #/admin mientras no existe el panel real.
+export { montarPanelProvisional } from './pantalla-provisional.js';

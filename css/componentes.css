@@ -1,88 +1,788 @@
 /*
  * componentes.css — Estilos de los componentes de la UI.
- * Responsabilidad: definir el aspecto de las pantallas y piezas de la app, siempre con los
- * tokens de tokens.css. La estructura general de pantalla y los componentes compartidos
- * (botones, listas, modales...) llegan en el prompt 3; acá solo está lo que necesita el
- * login (prompt 2).
+ * Responsabilidad: definir el aspecto de cada componente de js/ui/ y de las pantallas,
+ * siempre con los tokens de tokens.css (sin colores ni radios sueltos). Una sección
+ * comentada por componente. La estructura de pantalla está en base.css.
  */
 
 /* =========================================================================================
- * Login (prompt 2)
- * Mobile-first a 390 px: tarjeta a todo el ancho con margen lateral, centrada en la pantalla.
+ * Botón (compartido: pie, diálogos, estados, login)
+ * Principal: degradé dorado. Secundario: superficie con borde. Peligro: rojo.
  * ======================================================================================= */
 
-/* Pantalla completa con la tarjeta centrada; el padding evita que toque los bordes. */
-.login {
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--toque-min);
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--radio-md);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.boton:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.boton--principal {
+  background: var(--degrade-dorado);
+  color: var(--azul-900);
+}
+
+.boton--secundario {
+  background: var(--superficie-alta);
+  border-color: var(--borde-boton);
+  color: var(--texto);
+}
+
+.boton--secundario:hover {
+  background: var(--superficie-activa);
+}
+
+.boton--peligro {
+  background: var(--peligro);
+  color: var(--texto);
+}
+
+/* =========================================================================================
+ * Campo de texto (compartido: login y, más adelante, formularios del admin)
+ * 16 px de letra como mínimo: con menos, iOS hace zoom al enfocar (C5).
+ * ======================================================================================= */
+
+.campo {
+  display: grid;
+  gap: 6px;
+}
+
+.campo__etiqueta {
+  color: var(--texto-suave);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.campo__entrada {
+  width: 100%;
+  min-height: var(--toque-min);
+  padding: 10px 14px;
+  font-size: 16px;
+  background: var(--superficie);
+  border: 1px solid var(--borde-boton);
+  border-radius: var(--radio-md);
+}
+
+.campo__entrada:focus-visible {
+  border-color: var(--acento);
+}
+
+/* =========================================================================================
+ * Título de pantalla (js/ui/titulo.js)
+ * 28 px / 800 / -0.6 px; Volver opcional a la izquierda y acción opcional a la derecha.
+ * ======================================================================================= */
+
+.titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.titulo__volver {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--toque-min);
+  height: var(--toque-min);
+  margin-left: -10px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radio-sm);
+  background: transparent;
+  color: var(--icono-secundario);
+}
+
+.titulo__volver:hover {
+  background: var(--superficie);
+}
+
+.titulo__textos {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.titulo__texto {
+  font-size: var(--texto-titulo-pantalla);
+  font-weight: 800;
+  letter-spacing: var(--espaciado-titulo);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.titulo__subtitulo {
+  margin-top: 4px;
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+
+/* Acción a la derecha (".zip"): contorno dorado, chica pero con 44 px de alto. */
+.titulo__accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  min-height: var(--toque-min);
+  padding: 0 14px;
+  border: 1px solid var(--borde-dorado);
+  border-radius: var(--radio-md);
+  background: var(--superficie);
+  color: var(--acento);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.titulo__accion:hover {
+  background: var(--superficie-activa);
+}
+
+/* =========================================================================================
+ * Ruta de carpetas (js/ui/ruta.js)
+ * Una sola línea; si no entra, ruta.js colapsa los tramos del medio en "…". El último
+ * tramo va en dorado y, si solo él ya no entra, se corta con "…".
+ * ======================================================================================= */
+
+.ruta {
+  margin-bottom: 8px;
+  font-size: var(--texto-ruta);
+}
+
+.ruta__lista {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ruta__item {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  min-width: 0;
+}
+
+/* El último tramo puede achicarse y cortarse; los demás conservan su ancho. */
+.ruta__item:last-child {
+  flex: 0 1 auto;
+}
+
+/* Mientras ruta.js mide, el último tramo conserva su ancho natural. */
+.ruta--midiendo .ruta__item:last-child {
+  flex: none;
+}
+
+.ruta__separador {
+  padding: 0 6px;
+  color: var(--texto-tenue);
+}
+
+.ruta__tramo,
+.ruta__colapsado {
+  color: var(--texto-suave);
+}
+
+a.ruta__tramo:hover {
+  color: var(--texto);
+}
+
+.ruta__actual {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--acento);
+  font-weight: 600;
+}
+
+/* =========================================================================================
+ * Ícono de item (carpeta dorada o cuadro con la extensión del archivo)
+ * Lo usan lista.js y el encabezado de la hoja de acciones.
+ * ======================================================================================= */
+
+.item-icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radio-sm);
+}
+
+.item-icono--carpeta {
+  background: var(--degrade-dorado-icono);
+  color: var(--azul-900);
+}
+
+.item-icono--archivo {
+  background: var(--superficie-alta);
+  border: 1px solid var(--borde-superficie);
+  color: var(--icono-secundario);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+/* =========================================================================================
+ * Lista estilo Drive (js/ui/lista.js)
+ * Filas con ícono, nombre (15 px / 600, cortado con "…"), detalle (12 px) y ⋮ de 44 px.
+ * ======================================================================================= */
+
+.lista {
+  border: 1px solid var(--borde-superficie);
+  border-radius: var(--radio-lg);
+  background: var(--superficie);
+  overflow: hidden;
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.fila + .fila {
+  border-top: 1px solid var(--borde-fila);
+}
+
+/* Toda la parte izquierda es tocable; min-width: 0 deja que el nombre se corte. */
+.fila__principal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 60px;
+  padding: 10px 4px 10px 14px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.fila__principal:hover,
+.fila__menu:hover {
+  background: var(--superficie);
+}
+
+.fila__textos {
+  display: grid;
+  min-width: 0;
+}
+
+.fila__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--texto-fila);
+  font-weight: 600;
+}
+
+.fila__detalle {
+  color: var(--texto-suave);
+  font-size: var(--texto-detalle);
+}
+
+.fila__menu {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--toque-min);
+  height: var(--toque-min);
+  margin-right: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radio-sm);
+  background: transparent;
+  color: var(--icono-secundario);
+}
+
+/* =========================================================================================
+ * Tarjeta de carrera (js/ui/tarjeta.js)
+ * ======================================================================================= */
+
+.tarjeta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 76px;
+  padding: 16px;
+  border: 1px solid var(--borde-superficie);
+  border-radius: var(--radio-lg);
+  background: var(--superficie-alta);
+}
+
+.tarjeta:hover {
+  background: var(--superficie-activa);
+}
+
+.tarjeta__icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radio-md);
+  background: var(--degrade-dorado-icono);
+  color: var(--azul-900);
+}
+
+.tarjeta__textos {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tarjeta__nombre {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.tarjeta__subtitulo {
+  color: var(--texto-suave);
+  font-size: var(--texto-detalle);
+}
+
+.tarjeta__chevron {
+  flex: none;
+  color: var(--acento);
+}
+
+/* =========================================================================================
+ * Hoja inferior (js/ui/hoja.js)
+ * Velo, panel #111F3B con esquinas de arriba de 26 px, manija y acciones de 52 px.
+ * Entra deslizándose desde abajo; sin animación con prefers-reduced-motion (tokens.css).
+ * ======================================================================================= */
+
+.hoja {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.hoja__velo,
+.dialogo__velo {
+  position: absolute;
+  inset: 0;
+  background: var(--velo);
+  opacity: 0;
+  transition: opacity var(--duracion-animacion) ease;
+}
+
+.hoja__panel {
+  position: relative;
+  width: 100%;
+  max-width: var(--ancho-columna);
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding: 8px 12px calc(14px + env(safe-area-inset-bottom));
+  border: 1px solid var(--borde-superficie);
+  border-bottom: 0;
+  border-radius: var(--radio-hoja) var(--radio-hoja) 0 0;
+  background: var(--azul-panel);
+  transform: translateY(100%);
+  transition: transform var(--duracion-animacion) ease;
+}
+
+.hoja__panel:focus {
+  outline: none;
+}
+
+.hoja.esta-abierta .hoja__velo,
+.dialogo.esta-abierta .dialogo__velo {
+  opacity: 1;
+}
+
+.hoja.esta-abierta .hoja__panel {
+  transform: translateY(0);
+}
+
+.hoja__manija {
+  width: 40px;
+  height: 4px;
+  margin: 2px auto 12px;
+  border-radius: 2px;
+  background: var(--borde-boton);
+}
+
+.hoja__encabezado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 4px 8px;
+  padding: 4px 4px 14px;
+  border-bottom: 1px solid var(--borde-fila);
+}
+
+.hoja__textos {
+  display: grid;
+  min-width: 0;
+}
+
+.hoja__titulo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.hoja__detalle {
+  color: var(--texto-suave);
+  font-size: var(--texto-detalle);
+  overflow-wrap: anywhere;
+}
+
+.hoja__accion {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: var(--alto-accion-hoja);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radio-md);
+  background: transparent;
+  color: var(--texto);
+  font-size: var(--texto-fila);
+  font-weight: 600;
+  text-align: left;
+}
+
+.hoja__accion .icono {
+  color: var(--icono-secundario);
+}
+
+.hoja__accion:hover {
+  background: var(--superficie-alta);
+}
+
+.hoja__accion--destacada,
+.hoja__accion--destacada .icono {
+  color: var(--acento);
+}
+
+.hoja__accion--peligro,
+.hoja__accion--peligro .icono {
+  color: var(--peligro-texto);
+}
+
+/* =========================================================================================
+ * Diálogo de confirmación (js/ui/dialogo.js)
+ * Panel #111F3B de 22 px, título 18 px / 800, texto #B5BFD2 y dos botones.
+ * "peligro": botón rojo. "aviso": borde y botón dorados.
+ * ======================================================================================= */
+
+.dialogo {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 24px var(--margen-pantalla);
+}
+
+.dialogo__panel {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  padding: 22px 20px 18px;
+  border: 1px solid var(--borde-superficie);
+  border-radius: var(--radio-xl);
+  background: var(--azul-panel);
+  opacity: 0;
+  transform: scale(0.96);
+  transition:
+    opacity var(--duracion-animacion) ease,
+    transform var(--duracion-animacion) ease;
+}
+
+.dialogo__panel:focus {
+  outline: none;
+}
+
+.dialogo--aviso .dialogo__panel {
+  border-color: var(--borde-dorado);
+}
+
+.dialogo.esta-abierta .dialogo__panel {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dialogo__icono {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 14px;
+  border-radius: var(--radio-md);
+}
+
+.dialogo--peligro .dialogo__icono {
+  background: color-mix(in srgb, var(--peligro) 18%, transparent);
+  color: var(--peligro-texto);
+}
+
+.dialogo--aviso .dialogo__icono {
+  background: var(--superficie-alta);
+  border: 1px solid var(--borde-dorado);
+  color: var(--acento);
+}
+
+.dialogo__titulo {
+  font-size: var(--texto-titulo-dialogo);
+  font-weight: 800;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.dialogo__texto {
+  margin-top: 8px;
+  color: var(--texto-dialogo);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.dialogo__botones {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.dialogo__botones > .boton {
+  flex: 1 1 0;
+  min-height: 48px;
+}
+
+/* =========================================================================================
+ * Estados: vacío, cargando y error (js/ui/estados.js)
+ * ======================================================================================= */
+
+.estado {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 40px 16px;
+  text-align: center;
+}
+
+.estado__icono {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--borde-dorado-suave);
+  border-radius: var(--radio-lg);
+  background: var(--superficie);
+  color: var(--acento);
+}
+
+.estado__titulo {
+  font-size: var(--texto-fila);
+  font-weight: 600;
+}
+
+.estado__detalle {
+  max-width: 300px;
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+
+.estado--error .estado__titulo {
+  color: var(--peligro-texto);
+}
+
+/* Cargando: filas esqueleto en una caja como la lista, con un pulso suave. */
+.estado--cargando {
+  display: block;
+  /* Sin esto, el centrado de .estado también achica las filas (alineación en bloque). */
+  justify-items: normal;
+  padding: 0;
+  border: 1px solid var(--borde-superficie);
+  border-radius: var(--radio-lg);
+  background: var(--superficie);
+  overflow: hidden;
+}
+
+.esqueleto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 10px 14px;
+}
+
+.esqueleto + .esqueleto {
+  border-top: 1px solid var(--borde-fila);
+}
+
+.esqueleto__icono,
+.esqueleto__linea {
+  background: var(--superficie-activa);
+  animation: pulso 1.4s ease-in-out infinite;
+}
+
+.esqueleto__icono {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radio-sm);
+}
+
+.esqueleto__lineas {
+  display: grid;
+  gap: 8px;
+  flex: 1 1 auto;
+}
+
+.esqueleto__linea {
+  height: 10px;
+  width: 70%;
+  border-radius: 5px;
+}
+
+.esqueleto__linea--corta {
+  width: 35%;
+}
+
+@keyframes pulso {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto__icono,
+  .esqueleto__linea {
+    animation: none;
+  }
+}
+
+/* =========================================================================================
+ * Aviso breve / toast (js/ui/aviso.js)
+ * Abajo y centrado, por encima del pie y de las capas modales.
+ * ======================================================================================= */
+
+.avisos {
+  position: fixed;
+  left: 50%;
+  bottom: calc(84px + env(safe-area-inset-bottom));
+  z-index: 40;
+  display: grid;
+  gap: 8px;
+  width: calc(100% - 2 * var(--margen-pantalla));
+  max-width: calc(var(--ancho-columna) - 2 * var(--margen-pantalla));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.aviso {
+  padding: 12px 16px;
+  border: 1px solid var(--borde-superficie);
+  border-radius: var(--radio-md);
+  background: var(--azul-panel);
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--duracion-animacion) ease,
+    transform var(--duracion-animacion) ease;
+}
+
+.aviso.esta-abierta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.aviso--exito {
+  border-color: var(--borde-dorado);
+}
+
+.aviso--error {
+  border-color: color-mix(in srgb, var(--peligro) 60%, transparent);
+  color: var(--peligro-texto);
+}
+
+/* =========================================================================================
+ * Login (prompt 2; ajustado en el prompt 3 para usar .boton y .campo)
+ * Sin encabezado: tarjeta centrada sobre el fondo de pantalla.
+ * ======================================================================================= */
+
+.login,
+.arranque {
   min-height: 100vh;
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 24px 16px;
-  background: var(--azul-850);
+  padding: 24px var(--margen-pantalla);
 }
 
-/* Tarjeta del formulario; el ancho máximo la mantiene legible en escritorio. */
-.login__tarjeta {
+.login__tarjeta,
+.arranque__tarjeta {
   width: 100%;
   max-width: 400px;
   padding: 32px 20px 28px;
+  border: 1px solid var(--borde-superficie);
+  border-radius: var(--radio-xl);
   background: var(--azul-panel);
-  border-radius: var(--radio-lg);
 }
 
-/* Nombre de la app con el degradé dorado de acento (DS5). */
-.login__titulo {
+/* Marca arriba del formulario: el mismo ícono dorado que el encabezado. */
+.login__marca {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
   margin-bottom: 24px;
-  font-size: 1.75rem;
+}
+
+.login__marca-icono {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radio-md);
+  background: var(--degrade-dorado-icono);
+  color: var(--azul-900);
+}
+
+.login__titulo {
+  font-size: var(--texto-titulo-pantalla);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--espaciado-titulo);
   text-align: center;
-  background: var(--degrade-dorado);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
 /* Aviso informativo (por ejemplo, cierre por inactividad): neutro, no es un error. */
 .login__aviso {
   margin-bottom: 20px;
   padding: 12px 14px;
-  background: var(--azul-800);
-  border-radius: var(--radio-sm);
-  color: var(--texto);
-  font-size: 0.9375rem;
+  border: 1px solid var(--borde-dorado-suave);
+  border-radius: var(--radio-md);
+  background: var(--superficie);
+  font-size: 15px;
 }
 
-/* Columna de campos con separación uniforme. */
 .login__formulario {
   display: grid;
   gap: 16px;
-}
-
-.login__campo {
-  display: grid;
-  gap: 6px;
-}
-
-.login__etiqueta {
-  color: var(--texto-suave);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-/* 16 px de letra como mínimo: con menos, iOS hace zoom al enfocar (C5). */
-.login__entrada {
-  width: 100%;
-  min-height: var(--toque-min);
-  padding: 10px 14px;
-  font-size: 1rem;
-  background: var(--azul-850);
-  border: 1px solid color-mix(in srgb, var(--texto-tenue) 45%, transparent);
-  border-radius: var(--radio-sm);
-}
-
-.login__entrada:focus-visible {
-  border-color: var(--acento);
 }
 
 /* Toda la fila es tocable y mide al menos 44 px (D7). */
@@ -104,42 +804,26 @@
 
 .login__casilla-texto {
   display: grid;
-  font-size: 0.9375rem;
+  font-size: 15px;
 }
 
-/* Aclaración "Solo en dispositivos propios", más tenue que la etiqueta. */
 .login__casilla-ayuda {
   color: var(--texto-tenue);
-  font-size: 0.8125rem;
+  font-size: 13px;
 }
 
 /* Zona de error: vacía no ocupa lugar; con texto se lee en el color de peligro. */
 .login__error {
   color: var(--peligro-texto);
-  font-size: 0.9375rem;
+  font-size: 15px;
 }
 
 .login__error:empty {
   display: none;
 }
 
-/* Botón principal con el degradé dorado (DS5). */
-.login__boton {
-  min-height: 48px;
-  padding: 12px 20px;
-  border: 0;
-  border-radius: var(--radio-md);
-  background: var(--degrade-dorado);
-  color: var(--azul-900);
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-/* Mientras espera respuesta: se ve inactivo y no acepta otro envío. */
-.login__boton:disabled {
-  opacity: 0.6;
-  cursor: progress;
+.login__formulario > .boton {
+  min-height: var(--alto-boton-pie);
 }
 
 /* =========================================================================================
@@ -147,27 +831,13 @@
  * Lo muestra el router si falta la configuración o no se pudo cargar la app.
  * ======================================================================================= */
 
-.arranque {
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: grid;
-  place-items: center;
-  padding: 24px 16px;
-  background: var(--azul-850);
-}
-
 .arranque__tarjeta {
-  width: 100%;
-  max-width: 400px;
-  padding: 28px 20px;
-  background: var(--azul-panel);
-  border-radius: var(--radio-lg);
   text-align: center;
 }
 
 .arranque__titulo {
   margin-bottom: 12px;
-  font-size: 1.25rem;
+  font-size: 20px;
   font-weight: 700;
 }
 
@@ -177,41 +847,72 @@
 }
 
 /* =========================================================================================
- * Inicio provisional (prompt 2) — PROVISIONAL HASTA EL PROMPT 4, se borra con su pantalla.
+ * Hoja "Cuenta" (módulo auth, EP1): el ícono de persona del encabezado de la hoja.
  * ======================================================================================= */
 
-.inicio-provisional {
-  min-height: 100vh;
-  min-height: 100dvh;
+.cuenta__icono {
   display: grid;
   place-items: center;
-  padding: 24px 16px;
-  background: var(--azul-850);
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--borde-superficie);
+  border-radius: 50%;
+  background: var(--superficie-alta);
+  color: var(--icono-secundario);
 }
 
-.inicio-provisional__tarjeta {
+/* =========================================================================================
+ * Cuerpo provisional (#/admin) — PROVISIONAL HASTA EL PROMPT 9.
+ * ======================================================================================= */
+
+.provisional {
+  color: var(--texto-suave);
+}
+
+/* =========================================================================================
+ * Muestrario (#/muestrario) — PROVISIONAL, SE BORRA EN EL PROMPT 11.
+ * ======================================================================================= */
+
+/* minmax(0, …): las filas con nombres largos se cortan en lugar de ensanchar la columna. */
+.muestrario {
   display: grid;
-  gap: 20px;
-  width: 100%;
-  max-width: 400px;
-  padding: 28px 20px;
-  background: var(--azul-panel);
-  border-radius: var(--radio-lg);
-  text-align: center;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
 }
 
-/* El email puede ser largo: se corta en cualquier punto antes que desbordar a 390 px. */
-.inicio-provisional__texto {
-  overflow-wrap: anywhere;
+.muestrario__seccion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
 }
 
-/* Botón secundario: contorno en lugar de degradé, porque no es la acción principal. */
-.inicio-provisional__boton {
-  min-height: var(--toque-min);
-  padding: 10px 20px;
-  background: transparent;
-  border: 1px solid var(--texto-tenue);
+.muestrario__subtitulo {
+  color: var(--texto-tenue);
+  font-size: var(--texto-detalle);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.muestrario__nota {
+  padding: 10px 12px;
+  border: 1px dashed var(--borde-dorado);
   border-radius: var(--radio-md);
-  font-weight: 600;
-  cursor: pointer;
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+
+.muestrario__botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Caja angosta para mostrar que la ruta colapsa los tramos del medio. */
+.muestrario__angosto {
+  max-width: 230px;
+  padding: 8px 10px 0;
+  border: 1px dashed var(--borde-boton);
+  border-radius: var(--radio-sm);
 }

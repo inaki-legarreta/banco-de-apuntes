@@ -18,6 +18,7 @@ export {
   cerrarSesion,
   obtenerSesion,
   obtenerPerfil,
+  esAdmin,
   alCambiarSesion,
   restaurarSesion,
   ErrorAuth,
@@ -25,5 +26,5 @@ export {
 
 // Pantallas.
 export { montarPantallaLogin } from './pantalla-login.js';
-// PROVISIONAL hasta el prompt 4 (lo reemplaza la home de carreras del explorador).
-export { montarInicioProvisional } from './inicio-provisional.js';
+// Hoja "Cuenta" del botón de persona del encabezado (EP1).
+export { abrirHojaCuenta } from './hoja-cuenta.js';

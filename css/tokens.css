@@ -2,6 +2,7 @@
  * tokens.css — Variables de diseño de Banco de Apuntes (identidad DS5, variante "Sobrio").
  * Responsabilidad: ser la única fuente de colores, radios, tamaños táctiles y tipografía.
  * El resto de los CSS consume estas variables; nunca define valores sueltos.
+ * Los valores salen de la maqueta "Banco de Apuntes — Maqueta" (prompt 3).
  */
 
 :root {
@@ -9,33 +10,97 @@
   --azul-900: #08101F;
   --azul-850: #0A1426;
   --azul-800: #0F1C36;
+  /* Paneles elevados: hoja inferior, diálogos, tarjeta del login. */
   --azul-panel: #111F3B;
+
+  /* Fondo de toda pantalla: degradé vertical de la maqueta. */
+  --fondo-pantalla: linear-gradient(
+    180deg,
+    var(--azul-800) 0%,
+    var(--azul-850) 38%,
+    var(--azul-900) 100%
+  );
+
+  /* Velo oscuro detrás de la hoja inferior y de los diálogos. */
+  --velo: rgba(3, 7, 15, 0.62);
 
   /* Texto: principal, secundario (metadatos) y tenue (ayudas, placeholders). */
   --texto: #E8ECF4;
   --texto-suave: #9AA6BD;
   --texto-tenue: #8D99B1;
+  /* Párrafos dentro de diálogos: un punto más claro que el secundario, para leer cómodo. */
+  --texto-dialogo: #B5BFD2;
+  /* Íconos secundarios (volver, ⋮, cuenta, acciones normales de la hoja). */
+  --icono-secundario: #C9D2E3;
 
   /* Dorado: solo para acentos (íconos de carpeta, ruta, botón principal). */
   --dorado-claro: #F0D394;
   --dorado: #D9B46A;
   --dorado-oscuro: #C99A4B;
+  /* Extremo oscuro del degradé de íconos (marca y carpeta), más profundo que el del botón. */
+  --dorado-icono: #B8893F;
   --acento: #E2C27F;
-  /* Degradé de acento armado con los dorados, para no repetirlo en cada componente. */
+  /* Degradé del botón principal (135deg, #F0D394 → #C99A4B). */
   --degrade-dorado: linear-gradient(135deg, var(--dorado-claro), var(--dorado-oscuro));
+  /* Degradé de los íconos de marca y de carpeta (135deg, #F0D394 → #B8893F). */
+  --degrade-dorado-icono: linear-gradient(135deg, var(--dorado-claro), var(--dorado-icono));
+
+  /* Superficies translúcidas sobre el fondo: tarjetas, campos, botones secundarios. */
+  --superficie: rgba(255, 255, 255, 0.04);
+  --superficie-alta: rgba(255, 255, 255, 0.05);
+  /* Superficie al tocar o pasar el mouse sobre una fila o un botón. */
+  --superficie-activa: rgba(255, 255, 255, 0.08);
+
+  /* Bordes: superficies, separación entre filas y botones secundarios. */
+  --borde-superficie: rgba(255, 255, 255, 0.08);
+  --borde-fila: rgba(255, 255, 255, 0.06);
+  --borde-boton: rgba(255, 255, 255, 0.13);
+  /* Bordes dorados: bajo el encabezado (suave) y en acentos (diálogo de aviso, foco). */
+  --borde-dorado-suave: rgba(226, 194, 127, 0.18);
+  --borde-dorado: rgba(226, 194, 127, 0.32);
 
   /* Peligro: acciones destructivas (borrar) y mensajes de error. */
   --peligro: #C9474A;
   --peligro-texto: #F2A6A6;
 
-  /* Radios de borde, de chico (chips, inputs) a grande (paneles, modales). */
-  --radio-sm: 10px;
-  --radio-md: 14px;
-  --radio-lg: 18px;
+  /* Radios de borde. */
+  --radio-sm: 10px;   /* íconos chicos (marca, carpeta, extensión) */
+  --radio-md: 14px;   /* botones y campos */
+  --radio-lg: 18px;   /* tarjetas */
+  --radio-xl: 22px;   /* diálogos */
+  --radio-hoja: 26px; /* esquinas de arriba de la hoja inferior */
 
   /* Tamaño mínimo de cualquier objetivo táctil (mobile-first, D7). */
   --toque-min: 44px;
+  /* Alto de los botones del pie y de las acciones de la hoja inferior. */
+  --alto-boton-pie: 50px;
+  --alto-accion-hoja: 52px;
+
+  /* Ancho máximo de la columna en pantallas anchas, hasta la versión de escritorio (DS6). */
+  --ancho-columna: 560px;
+
+  /* Margen lateral de las pantallas a 390 px. */
+  --margen-pantalla: 16px;
 
   /* Tipografía única de la app. */
   --fuente: 'Manrope', system-ui, sans-serif;
+
+  /* Escala tipográfica de la maqueta. */
+  --texto-titulo-pantalla: 28px; /* 800, letter-spacing -0.6px */
+  --texto-marca: 17px;           /* 700 */
+  --texto-titulo-dialogo: 18px;  /* 800 */
+  --texto-fila: 15px;            /* 600: nombre en una fila de la lista */
+  --texto-ruta: 13px;
+  --texto-detalle: 12px;         /* peso o cantidad de elementos */
+  --espaciado-titulo: -0.6px;
+
+  /* Duración de las animaciones de hoja, diálogo y aviso (se anulan con reduced-motion). */
+  --duracion-animacion: 200ms;
+}
+
+/* Sin animaciones si el usuario lo pidió en su sistema. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duracion-animacion: 0ms;
+  }
 }

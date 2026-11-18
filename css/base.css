@@ -1,8 +1,14 @@
 /*
- * base.css — Reset y estilos globales de la app.
- * Responsabilidad: dejar un punto de partida uniforme entre navegadores y aplicar fondo,
- * tipografía y colores base desde los tokens. No contiene estilos de componentes.
+ * base.css — Reset, estilos globales y estructura común de pantalla.
+ * Responsabilidad: dejar un punto de partida uniforme entre navegadores, aplicar fondo,
+ * tipografía y colores base desde los tokens, y definir la estructura de pantalla
+ * (encabezado fijo, contenido con scroll propio y pie opcional) que arma js/ui/pantalla.js.
+ * Los componentes reutilizables viven en componentes.css.
  */
+
+/* =========================================================================================
+ * Reset
+ * ======================================================================================= */
 
 /* Para que padding y borde no sumen ancho y el layout a 390 px sea predecible. */
 *,
@@ -22,21 +28,31 @@ ol {
   margin: 0;
 }
 
+/* Las listas de la app no usan viñetas: las arma cada componente. */
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
 /* Fondo y tipografía globales: la app es oscura en todas las pantallas (DS5). */
 html {
   color-scheme: dark;
   -webkit-text-size-adjust: 100%;
+  background: var(--azul-900);
 }
 
 body {
   min-height: 100vh;
   min-height: 100dvh;
-  background: var(--azul-900);
+  background: var(--fondo-pantalla);
+  background-attachment: fixed;
   color: var(--texto);
   font-family: var(--fuente);
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Las imágenes nunca desbordan su contenedor en pantallas angostas. */
@@ -55,8 +71,171 @@ textarea {
   color: inherit;
 }
 
+button {
+  cursor: pointer;
+}
+
+/* Los enlaces de la app se ven como sus componentes, no como links azules. */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 /* Foco visible y consistente para navegación por teclado. */
 :focus-visible {
   outline: 2px solid var(--acento);
   outline-offset: 2px;
+}
+
+/* Texto solo para lectores de pantalla (etiquetas de botones con ícono, por ejemplo). */
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================================================================
+ * Estructura de pantalla (js/ui/pantalla.js)
+ * Columna de alto completo (100dvh) en tres filas: encabezado y pie quietos, contenido con
+ * scroll propio. En pantallas anchas la columna se centra con un ancho máximo, hasta la
+ * versión de escritorio (prompt 10, DS6).
+ * ======================================================================================= */
+
+.pantalla {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* minmax(0, …): un nombre largo sin cortes no puede ensanchar la columna. */
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  max-width: var(--ancho-columna);
+  height: 100vh;
+  height: 100dvh;
+  margin: 0 auto;
+}
+
+/* En pantallas más anchas que la columna, bordes laterales suaves para enmarcarla. */
+@media (min-width: 600px) {
+  .pantalla {
+    border-inline: 1px solid var(--borde-fila);
+  }
+}
+
+/* Encabezado: marca, botón de cuenta y buscador; borde dorado suave abajo (maqueta). */
+.pantalla__encabezado {
+  display: grid;
+  gap: 12px;
+  padding: calc(12px + env(safe-area-inset-top)) var(--margen-pantalla) 14px;
+  border-bottom: 1px solid var(--borde-dorado-suave);
+}
+
+.pantalla__barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Marca: ícono dorado de libro + nombre; lleva a #/. */
+.pantalla__marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--toque-min);
+  font-size: var(--texto-marca);
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.pantalla__marca-icono {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radio-sm);
+  background: var(--degrade-dorado-icono);
+  color: var(--azul-900);
+}
+
+/* Botón de cuenta: 44 px, redondo, sobre superficie (EP1). */
+.pantalla__cuenta {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--toque-min);
+  height: var(--toque-min);
+  padding: 0;
+  border: 1px solid var(--borde-superficie);
+  border-radius: 50%;
+  background: var(--superficie-alta);
+  color: var(--icono-secundario);
+}
+
+.pantalla__cuenta:hover {
+  background: var(--superficie-activa);
+}
+
+/*
+ * Buscador: PENDIENTE (prompt 8). Por ahora solo visual; el campo es de solo lectura y no
+ * hace nada. 16 px de letra para que iOS no haga zoom al tocarlo (C5).
+ */
+.pantalla__buscador {
+  position: relative;
+  display: block;
+}
+
+.pantalla__buscador-icono {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: var(--texto-tenue);
+  pointer-events: none;
+}
+
+.pantalla__buscador-campo {
+  width: 100%;
+  min-height: var(--toque-min);
+  padding: 10px 14px 10px 42px;
+  border: 1px solid var(--borde-superficie);
+  border-radius: var(--radio-md);
+  background: var(--superficie);
+  font-size: 16px;
+  cursor: default;
+}
+
+.pantalla__buscador-campo::placeholder {
+  color: var(--texto-tenue);
+}
+
+/* Contenido: lo único que scrollea; el encabezado y el pie quedan quietos. */
+.pantalla__contenido {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 18px var(--margen-pantalla) 24px;
+}
+
+/* Pie opcional con hasta dos botones; respeta la zona segura de abajo (iPhone). */
+.pantalla__pie {
+  display: flex;
+  gap: 10px;
+  padding: 12px var(--margen-pantalla) calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--borde-fila);
+  background: var(--azul-900);
+}
+
+.pantalla__pie[hidden] {
+  display: none;
+}
+
+/* Los dos botones del pie se reparten el ancho; si hay uno solo, ocupa todo. */
+.pantalla__pie > .boton {
+  flex: 1 1 0;
+  min-height: var(--alto-boton-pie);
 }
