@@ -11,6 +11,19 @@
 
 ## Bitácora (más reciente arriba)
 
+### 2026-11-17 — Cierre del prompt 0: quitar copia de prompts
+- Hecho: se eliminó `docs/prompts-claude-code.md` del repo. La fuente de verdad de los
+  prompts es el proyecto de claude.ai y se pasan de a uno.
+- Archivos: `docs/prompts-claude-code.md` (eliminado), `docs/PROGRESO.md`.
+- Decisiones o cambios: el repo ya no guarda copia de los prompts. Se quitó el pendiente sobre
+  "región São Paulo" (ya resuelto en AT9).
+- Pendientes / dudas para Iñaki:
+  - La carpeta padre (`Banco de apuntes/`) tiene su propio `.git` con el **mismo remoto**
+    (`inaki-legarreta/banco-de-apuntes`), y GitHub `main` apunta a su commit `0471733`
+    ("first commit", solo un README). No se borró nada. La historia de este repo no tiene
+    relación con ese commit, así que el push necesita una decisión: sobrescribir `main` o
+    unir las dos historias.
+
 ### 2026-11-17 — Prompt 0: base del proyecto
 - Hecho:
   - Estructura de carpetas de AT4: `css/`, `js/core/`, `js/modulos/{auth, explorador,
@@ -49,7 +62,4 @@
     (`banco-de-apuntes/`, remoto `inaki-legarreta/banco-de-apuntes`). Conviene decidir si el
     repo de la carpeta padre se borra para evitar confusiones. El `.env` real debería vivir
     dentro de `banco-de-apuntes/` (ya está en `.gitignore`).
-  - `docs/prompts-claude-code.md` todavía dice "región São Paulo" en la Preparación y cita
-    rutas `claude/...`; AT9 ya registra us-west-2 (Oregón). No se tocó porque es un documento
-    del proyecto de claude.ai.
   - El commit no se subió a GitHub (no se hizo push).
