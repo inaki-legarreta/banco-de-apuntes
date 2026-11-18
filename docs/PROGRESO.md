@@ -20,6 +20,20 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
 
 ## Bitácora (más reciente arriba)
 
+### 2026-11-17 — Criterios de terminado del prompt 1
+- Hecho: Iñaki pasó los criterios de terminado del prompt 1, que habían llegado vacíos, y
+  confirmó que se cumplen todos:
+  - [x] Existen y están comentados los dos archivos de migración (`001-perfiles.sql`,
+    `002-items.sql`) y los dos manuales (`hacer-admin.sql`, `verificacion-001-002.sql`).
+  - [x] `verificacion-001-002.sql` da todo `ok = true`.
+  - [x] Están actualizados `docs/base-de-datos.md`, `supabase/migraciones/README.md`,
+    `.env.example` y `docs/decisiones.md`.
+  - [x] `docs/PROGRESO.md` registra el prompt.
+  - [x] Push hecho.
+- Archivos: `docs/PROGRESO.md`.
+- Decisiones o cambios: ninguno.
+- Pendientes / dudas para Iñaki: ninguno. No quedan pendientes abiertos del prompt 1.
+
 ### 2026-11-17 — Cierre del prompt 1: migraciones aplicadas en Supabase
 - Hecho: Iñaki aplicó todo a mano en Supabase:
   - Desactivó el registro público de Supabase Auth (BD4).
@@ -32,7 +46,8 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
   cualquier cambio al esquema va en una migración nueva (`003-...`).
 - Pendientes / dudas para Iñaki: se cierran los de aplicar las migraciones, verificar,
   marcar el primer admin y desactivar el registro público. Sigue abierto que la sección
-  "Criterios de terminado" del prompt 1 llegó vacía (solo como registro).
+  "Criterios de terminado" del prompt 1 llegó vacía (solo como registro). (**Resuelto:**
+  ver "Criterios de terminado del prompt 1".)
 
 ### 2026-11-17 — Ajustes al prompt 1 (antes de aplicar las migraciones)
 - Hecho: como 002 todavía no se había aplicado, se editó `002-items.sql` en lugar de crear
@@ -96,7 +111,8 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
   - El trigger de integridad no cubre un cambio de `tipo` (por ejemplo, una carpeta con
     hijos que pasa a `archivo`). (**Resuelto:** trigger `items_bloquear_cambio_de_tipo`,
     ver "Ajustes al prompt 1".)
-  - La sección "Criterios de terminado" del prompt 1 llegó vacía.
+  - La sección "Criterios de terminado" del prompt 1 llegó vacía. (**Resuelto:** ver
+    "Criterios de terminado del prompt 1".)
 
 ### 2026-11-17 — README.md reescrito en UTF-8
 - Hecho: se reescribió `README.md` en UTF-8 (antes estaba en UTF-16, git lo trataba como
