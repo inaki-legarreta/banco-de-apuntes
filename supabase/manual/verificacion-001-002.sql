@@ -146,6 +146,31 @@ begin
     exception when raise_exception then null;
     end;
 
+    -- Trigger: una carpeta (con contenido) no puede pasar a archivo. Se mandan también
+    -- tamaño y clave para que la restricción items_datos_segun_tipo no salte antes: así
+    -- se prueba el trigger y no la restricción.
+    begin
+      update public.items
+         set tipo = 'archivo', tamano_bytes = 1, clave_r2 = '__verificacion/clave-tipo'
+       where id = carpeta_b;
+      raise exception using errcode = 'P0900',
+        message = 'FALLÓ: se convirtió una carpeta en archivo.';
+    exception when raise_exception then null;
+    end;
+
+    -- Trigger: un archivo no puede pasar a carpeta.
+    begin
+      update public.items
+         set tipo = 'carpeta', tamano_bytes = null, clave_r2 = null
+       where id = archivo_f;
+      raise exception using errcode = 'P0900',
+        message = 'FALLÓ: se convirtió un archivo en carpeta.';
+    exception when raise_exception then null;
+    end;
+
+    -- Mandar el mismo tipo en un update tiene que seguir funcionando.
+    update public.items set tipo = 'carpeta' where id = carpeta_b;
+
     -- Trigger: actualizado_en se pisa con now() aunque se mande otro valor.
     update public.items set actualizado_en = '2000-01-01' where id = carpeta_b;
     select i.actualizado_en into fecha from public.items as i where i.id = carpeta_b;
@@ -211,6 +236,9 @@ from (
   select 13, 'Función items_validar_padre() existe',
          to_regprocedure('public.items_validar_padre()') is not null
   union all
+  select 16, 'Función items_bloquear_cambio_de_tipo() existe',
+         to_regprocedure('public.items_bloquear_cambio_de_tipo()') is not null
+  union all
   select 14, 'anon NO puede ejecutar es_admin()',
          to_regprocedure('public.es_admin()') is not null
          and not has_function_privilege('anon', 'public.es_admin()', 'execute')
@@ -235,6 +263,11 @@ from (
          exists (select 1 from pg_trigger t
                  where t.tgrelid = to_regclass('public.items')
                    and t.tgname = 'items_validar_padre' and t.tgenabled <> 'D')
+  union all
+  select 23, 'Trigger items_bloquear_cambio_de_tipo en public.items',
+         exists (select 1 from pg_trigger t
+                 where t.tgrelid = to_regclass('public.items')
+                   and t.tgname = 'items_bloquear_cambio_de_tipo' and t.tgenabled <> 'D')
 
   -- Índices y restricciones
   union all
@@ -242,9 +275,6 @@ from (
          exists (select 1 from pg_index i
                  where i.indexrelid = to_regclass('public.items_nombre_unico_por_carpeta')
                    and i.indisunique and i.indnullsnotdistinct)
-  union all
-  select 31, 'Índice items_padre_id_idx',
-         to_regclass('public.items_padre_id_idx') is not null
   union all
   select 32, 'Restricciones de items (tipo, nombre, clave_r2 única, datos según tipo)',
          (select count(*) from pg_constraint c

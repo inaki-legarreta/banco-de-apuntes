@@ -4,9 +4,11 @@
  * Qué crea:
  *   - Tabla public.items: cada fila es una carpeta o un archivo; padre_id arma el árbol.
  *     La base guarda solo metadatos; el contenido de los archivos vive en R2 (AT2, AT3).
- *   - Índice único de nombre por carpeta, sin distinguir mayúsculas (BD1).
+ *   - Índice único de nombre por carpeta, sin distinguir mayúsculas (BD1). También sirve
+ *     para listar el contenido de una carpeta, porque empieza por padre_id.
  *   - Trigger que mantiene actualizado_en.
- *   - Trigger de integridad: el padre es una carpeta y no se forman ciclos.
+ *   - Triggers de integridad: el padre es una carpeta, no se forman ciclos y el tipo de
+ *     un elemento no cambia después de creado.
  *   - RLS: con sesión se lee; solo el admin escribe. Nada para anon (RNF5).
  *
  * Cómo se aplica: a mano, en el SQL Editor de Supabase, DESPUÉS de 001-perfiles.sql
@@ -90,19 +92,16 @@ comment on constraint items_datos_segun_tipo on public.items is
 
 -- NULLS NOT DISTINCT (Postgres 15+): sin esto, dos carpetas raíz (padre_id null) con el
 -- mismo nombre no chocarían, porque para un índice común null es distinto de null.
+-- No hace falta un índice aparte por padre_id: este ya empieza por padre_id, así que
+-- Postgres lo usa para "where padre_id = ..." y "where padre_id is null".
 create unique index if not exists items_nombre_unico_por_carpeta
   on public.items (padre_id, lower(nombre))
   nulls not distinct;
 
 comment on index public.items_nombre_unico_por_carpeta is
   'BD1: dentro de una misma carpeta (o entre las carpetas raíz) no puede haber dos elementos '
-  'con el mismo nombre, sin distinguir mayúsculas.';
-
-create index if not exists items_padre_id_idx
-  on public.items (padre_id);
-
-comment on index public.items_padre_id_idx is
-  'Acelera abrir una carpeta (listar sus hijos, RNF4) y el borrado en cascada.';
+  'con el mismo nombre, sin distinguir mayúsculas. Como empieza por padre_id, también '
+  'acelera abrir una carpeta (RNF4) y el borrado en cascada.';
 
 -- ---------------------------------------------------------------------------
 -- actualizado_en automático
@@ -207,6 +206,34 @@ create trigger items_validar_padre
 
 comment on trigger items_validar_padre on public.items is
   'Valida el padre al crear un elemento y al moverlo (cambio de padre_id).';
+
+-- "update of tipo" dispara aunque se mande el mismo valor; por eso se compara con old.
+create or replace function public.items_bloquear_cambio_de_tipo()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if new.tipo <> old.tipo then
+    raise exception 'No se puede convertir una carpeta en archivo ni un archivo en carpeta.';
+  end if;
+  return new;
+end;
+$$;
+
+comment on function public.items_bloquear_cambio_de_tipo() is
+  'Integridad del árbol: el tipo de un elemento queda fijo al crearlo. Así una carpeta con '
+  'contenido nunca pasa a ser archivo (dejaría hijos colgando de un archivo).';
+
+revoke execute on function public.items_bloquear_cambio_de_tipo() from anon, authenticated;
+
+drop trigger if exists items_bloquear_cambio_de_tipo on public.items;
+create trigger items_bloquear_cambio_de_tipo
+  before update of tipo on public.items
+  for each row execute function public.items_bloquear_cambio_de_tipo();
+
+comment on trigger items_bloquear_cambio_de_tipo on public.items is
+  'Rechaza cualquier update que cambie tipo.';
 
 -- ---------------------------------------------------------------------------
 -- Seguridad a nivel de fila (RLS)

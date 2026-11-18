@@ -97,10 +97,9 @@ traducirlo usando el nombre.
 
 ### Índices
 
-- `items_nombre_unico_por_carpeta`: el de BD1 (arriba).
-- `items_padre_id_idx`: listar el contenido de una carpeta (RNF4) y el borrado en cascada.
-  Nota: el índice único anterior también empieza por `padre_id` y podría cubrir esas
-  consultas; se creó igual porque lo pide el prompt 1 (ver pendientes en `PROGRESO.md`).
+- `items_nombre_unico_por_carpeta`: el de BD1 (arriba). Como empieza por `padre_id`,
+  también es el que usa Postgres para listar el contenido de una carpeta (RNF4) y para el
+  borrado en cascada. Por eso no hay un índice aparte por `padre_id`.
 
 ### Triggers
 
@@ -108,8 +107,9 @@ traducirlo usando el nombre.
 |---|---|---|
 | `items_actualizar_fecha` | before update | Pone `actualizado_en = now()`. |
 | `items_validar_padre` | before insert, before update of `padre_id` | Valida el padre (ver abajo). |
+| `items_bloquear_cambio_de_tipo` | before update of `tipo` | Rechaza el update si `tipo` cambia (ver abajo). |
 
-`items_validar_padre()` rechaza, con mensajes en español pensados para la UI (código
+Los triggers de integridad rechazan, con mensajes en español pensados para la UI (código
 `P0001`):
 
 | Caso | Mensaje |
@@ -118,6 +118,11 @@ traducirlo usando el nombre.
 | El padre no existe | "La carpeta de destino no existe (puede que se haya borrado)." |
 | El padre es un archivo | "El destino tiene que ser una carpeta, no un archivo." |
 | Una carpeta se mueve dentro de un descendiente | "Una carpeta no puede moverse dentro de una de sus subcarpetas." |
+| Un update cambia `tipo` (carpeta ↔ archivo) | "No se puede convertir una carpeta en archivo ni un archivo en carpeta." |
+
+El tipo queda fijo al crear el elemento: así una carpeta con contenido nunca pasa a ser
+archivo (sus hijos quedarían colgando de un archivo). Mandar el mismo tipo en un update no
+da error.
 
 Para detectar ciclos sube por los ancestros del nuevo padre; si aparece la carpeta que se
 mueve, el destino es un descendiente suyo. Limitación aceptada: dos movimientos simultáneos

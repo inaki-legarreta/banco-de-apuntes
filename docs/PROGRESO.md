@@ -20,6 +20,24 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
 
 ## Bitácora (más reciente arriba)
 
+### 2026-11-17 — Ajustes al prompt 1 (antes de aplicar las migraciones)
+- Hecho: como 002 todavía no se había aplicado, se editó `002-items.sql` en lugar de crear
+  una migración nueva:
+  - Se sacó el índice `items_padre_id_idx`: el índice único `(padre_id, lower(nombre))` ya
+    empieza por `padre_id` y cubre esas consultas.
+  - Nuevo trigger `items_bloquear_cambio_de_tipo` (before update of `tipo`, función
+    homónima): si `new.tipo <> old.tipo` lanza "No se puede convertir una carpeta en
+    archivo ni un archivo en carpeta.".
+  - `verificacion-001-002.sql`: pruebas de carpeta → archivo y archivo → carpeta (tienen
+    que fallar) y de update con el mismo tipo (tiene que andar); chequeos de la función y
+    el trigger nuevos; se quitó el chequeo del índice eliminado.
+- Archivos: `supabase/migraciones/002-items.sql`, `supabase/manual/verificacion-001-002.sql`,
+  `docs/base-de-datos.md`, `docs/PROGRESO.md`.
+- Decisiones o cambios: el tipo de un item queda fijo al crearlo. Se cierran los dos
+  pendientes del prompt 1 sobre el índice y el cambio de tipo.
+- Pendientes / dudas para Iñaki: siguen los de aplicar 001 y 002, verificar y marcar el
+  primer admin.
+
 ### 2026-11-17 — Prompt 1: base de datos
 - Hecho:
   - `supabase/migraciones/001-perfiles.sql`: tabla `perfiles` (rol admin/lector), trigger
@@ -59,11 +77,11 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
     en "Migraciones aplicadas".
   - Desactivar el registro público en Supabase Auth (BD4), si no se hizo.
   - `items_padre_id_idx` es redundante con el índice único `(padre_id, lower(nombre))`, que
-    ya empieza por `padre_id`. Se creó porque lo pide el prompt; se puede borrar en una
-    migración futura si se quiere ahorrar escritura.
+    ya empieza por `padre_id`. (**Resuelto:** se sacó de `002-items.sql`, ver "Ajustes al
+    prompt 1".)
   - El trigger de integridad no cubre un cambio de `tipo` (por ejemplo, una carpeta con
-    hijos que pasa a `archivo`). La app no ofrece esa operación; si se quiere blindar, va
-    en una migración futura.
+    hijos que pasa a `archivo`). (**Resuelto:** trigger `items_bloquear_cambio_de_tipo`,
+    ver "Ajustes al prompt 1".)
   - La sección "Criterios de terminado" del prompt 1 llegó vacía.
 
 ### 2026-11-17 — README.md reescrito en UTF-8
