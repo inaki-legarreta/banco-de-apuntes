@@ -49,12 +49,14 @@ export function crearIconoItem(tipo, nombre, extension) {
 /**
  * Crea la lista.
  * @param {Array<{ id: string, tipo: 'carpeta' | 'archivo', nombre: string,
- *   detalle?: string, extension?: string, href?: string }>} items filas ya ordenadas.
- *   href: si está, tocar la fila navega (carpetas); si no, llama a alAbrir.
+ *   detalle?: string, extension?: string, href?: string, menu?: boolean }>} items filas ya
+ *   ordenadas. href: si está, tocar la fila navega (carpetas); si no, llama a alAbrir.
+ *   menu: false para que esa fila no lleve ⋮ aunque la lista tenga alMenu (por ejemplo,
+ *   carpetas que todavía no tienen acciones).
  * @param {object} [opciones]
  * @param {(item: object) => void} [opciones.alAbrir] al tocar una fila sin href.
  * @param {(item: object, boton: HTMLButtonElement) => void} [opciones.alMenu] al tocar ⋮.
- *   Sin esta opción, las filas no muestran el botón ⋮.
+ *   Sin esta opción, ninguna fila muestra el botón ⋮.
  * @param {string} [opciones.etiqueta] nombre accesible de la lista.
  * @returns {HTMLUListElement}
  */
@@ -94,7 +96,7 @@ export function crearLista(items, { alAbrir, alMenu, etiqueta = 'Contenido de la
     principal.append(crearIconoItem(item.tipo, item.nombre, item.extension), textos);
     fila.append(principal);
 
-    if (alMenu) {
+    if (alMenu && item.menu !== false) {
       const menu = document.createElement('button');
       menu.type = 'button';
       menu.className = 'fila__menu';

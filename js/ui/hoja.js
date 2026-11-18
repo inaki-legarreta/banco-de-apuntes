@@ -1,12 +1,12 @@
 /*
  * ui/hoja.js — Hoja inferior (bottom sheet) de acciones.
  * Responsabilidad: mostrar, desde abajo de la pantalla, una lista de acciones de 52 px
- * (normal, destacada en dorado o peligrosa en rojo) con un encabezado opcional, y avisar
- * cuál se eligió. No sabe qué hace cada acción: lo decide quien la abre.
+ * (normal, destacada en dorado o peligrosa en rojo) con un encabezado, datos y una nota
+ * opcionales, y avisar cuál se eligió. No sabe qué hace cada acción: lo decide quien la abre.
  *
  * Accesibilidad (vía capa-modal.js): role="dialog" + aria-modal, foco atrapado, Escape y el
  * velo la cierran, el foco vuelve al botón que la abrió.
- * SEGURIDAD: títulos, detalles y etiquetas se escriben con textContent.
+ * SEGURIDAD: títulos, detalles, datos, nota y etiquetas se escriben con textContent.
  */
 
 import { abrirCapa } from './capa-modal.js';
@@ -30,13 +30,17 @@ const CLASE_POR_TIPO = Object.freeze({
  * @param {object} opciones
  * @param {{ titulo: string, detalle?: string, icono?: HTMLElement }} [opciones.encabezado]
  *   encabezado opcional (por ejemplo, nombre y peso del archivo con su ícono).
+ * @param {Array<{ etiqueta: string, valor: string }>} [opciones.datos] pares etiqueta-valor
+ *   que se muestran debajo del encabezado (por ejemplo, "Ubicación" y la ruta).
+ * @param {string} [opciones.nota] aviso breve debajo de los datos (por ejemplo, "La
+ *   descarga llega pronto.").
  * @param {string} [opciones.etiqueta] nombre accesible si no hay encabezado.
  * @param {Array<{ id: string, etiqueta: string, icono?: string,
  *   tipo?: 'normal' | 'destacada' | 'peligro' }>} opciones.acciones
  * @returns {Promise<string | null>} el id de la acción elegida, o null si se cerró sin
  *   elegir. La promesa resuelve recién cuando la hoja terminó de cerrarse y el foco volvió.
  */
-export function abrirHoja({ encabezado, etiqueta = 'Acciones', acciones }) {
+export function abrirHoja({ encabezado, datos, nota, etiqueta = 'Acciones', acciones }) {
   const idTitulo = `hoja-titulo-${++contadorHojas}`;
 
   const raiz = document.createElement('div');
@@ -78,6 +82,26 @@ export function abrirHoja({ encabezado, etiqueta = 'Acciones', acciones }) {
     panel.setAttribute('aria-labelledby', idTitulo);
   } else {
     panel.setAttribute('aria-label', etiqueta);
+  }
+
+  if (datos?.length) {
+    const tabla = document.createElement('dl');
+    tabla.className = 'hoja__datos';
+    for (const dato of datos) {
+      const termino = document.createElement('dt');
+      termino.textContent = dato.etiqueta;
+      const valor = document.createElement('dd');
+      valor.textContent = dato.valor;
+      tabla.append(termino, valor);
+    }
+    panel.append(tabla);
+  }
+
+  if (nota) {
+    const elNota = document.createElement('p');
+    elNota.className = 'hoja__nota';
+    elNota.textContent = nota;
+    panel.append(elNota);
   }
 
   const lista = document.createElement('ul');

@@ -22,6 +22,14 @@ const RUTA_LOGIN = '/login';
 const RUTA_INICIO = '/';
 
 /**
+ * Forma de un uuid (8-4-4-4-12 dígitos hexadecimales), como los id de items.
+ * Existe para validar el id de #/carpeta/<id> ANTES de consultar la base: un id mal
+ * formado nunca puede existir, y Postgres respondería con un error en lugar de "no hay
+ * filas".
+ */
+const PATRON_UUID = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
+
+/**
  * Tabla de rutas. Cada entrada tiene:
  * - patron: expresión regular sobre la ruta (los grupos capturados llegan como parámetros).
  * - publica: true si se puede ver sin sesión. Por defecto todas son privadas (RNF5). Las
@@ -33,9 +41,8 @@ const RUTA_INICIO = '/';
  *   contenido es la zona con scroll y pantalla permite pedir el pie (definirPie).
  *
  * Existe para que sumar una pantalla sea agregar una entrada, sin tocar el resto del router.
- * Próximas rutas previstas (prompts siguientes):
- *   { patron: /^\/carpeta\/([^/]+)$/, cargarPantalla: ... }   explorador
- *   { patron: /^\/buscar$/, cargarPantalla: ... }             búsqueda
+ * Gana la primera entrada cuyo patrón coincide. Próxima ruta prevista:
+ *   { patron: /^\/buscar$/, cargarPantalla: ... }             búsqueda (prompt 8)
  */
 const rutas = [
   {
@@ -44,10 +51,22 @@ const rutas = [
     cargarPantalla: () => import('../modulos/auth/index.js').then((m) => m.montarPantallaLogin),
   },
   {
-    // Home de carreras (DS4). Por ahora sin datos: los trae el prompt 4.
+    // Home de carreras (DS4): una tarjeta por carpeta raíz.
     patron: /^\/$/,
     cargarPantalla: () =>
       import('../modulos/explorador/index.js').then((m) => m.montarPantallaInicio),
+  },
+  {
+    // Vista de una carpeta (RF3). Solo coincide si el id tiene forma de uuid.
+    patron: new RegExp(`^/carpeta/(${PATRON_UUID})$`),
+    cargarPantalla: () =>
+      import('../modulos/explorador/index.js').then((m) => m.montarPantallaCarpeta),
+  },
+  {
+    // #/carpeta/<algo que no es un uuid>: "Esta carpeta no existe", sin consultar la base.
+    patron: /^\/carpeta(\/.*)?$/,
+    cargarPantalla: () =>
+      import('../modulos/explorador/index.js').then((m) => m.montarCarpetaInexistente),
   },
   {
     // Panel admin: PROVISIONAL hasta el prompt 9.
@@ -104,20 +123,24 @@ function redirigir(ruta) {
 
 /**
  * Muestra un mensaje de arranque (configuración incompleta o error de carga) en lugar de
- * una pantalla. El texto se escribe con textContent.
+ * una pantalla. Se arma con createElement y los textos van con textContent.
  */
 function mostrarMensajeArranque(titulo, detalle) {
+  const seccion = document.createElement('section');
+  seccion.className = 'arranque';
+  const tarjeta = document.createElement('div');
+  tarjeta.className = 'arranque__tarjeta';
+  const elTitulo = document.createElement('h1');
+  elTitulo.className = 'arranque__titulo';
+  elTitulo.textContent = titulo;
+  const elDetalle = document.createElement('p');
+  elDetalle.className = 'arranque__detalle';
+  elDetalle.textContent = detalle;
+  tarjeta.append(elTitulo, elDetalle);
+  seccion.append(tarjeta);
+
   const contenedor = contenedorApp();
-  contenedor.innerHTML = `
-    <section class="arranque">
-      <div class="arranque__tarjeta">
-        <h1 class="arranque__titulo"></h1>
-        <p class="arranque__detalle"></p>
-      </div>
-    </section>
-  `;
-  contenedor.querySelector('.arranque__titulo').textContent = titulo;
-  contenedor.querySelector('.arranque__detalle').textContent = detalle;
+  contenedor.replaceChildren(seccion);
   contenedor.removeAttribute('aria-busy');
 }
 

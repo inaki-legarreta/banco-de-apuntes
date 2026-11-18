@@ -14,12 +14,15 @@ import { crearIcono } from './iconos.js';
  * @param {string} [opciones.titulo]
  * @param {string} [opciones.detalle] texto secundario opcional.
  * @param {string} [opciones.icono] nombre de un ícono de iconos.js (carpeta por defecto).
+ * @param {{ etiqueta: string, href: string }} [opciones.accion] enlace con forma de botón
+ *   debajo del texto (por ejemplo, "Ir al inicio" cuando la carpeta no existe).
  * @returns {HTMLElement}
  */
 export function crearEstadoVacio({
   titulo = 'Esta carpeta está vacía',
   detalle,
   icono = 'carpeta',
+  accion,
 } = {}) {
   const caja = document.createElement('div');
   caja.className = 'estado estado--vacio';
@@ -39,6 +42,14 @@ export function crearEstadoVacio({
     elDetalle.className = 'estado__detalle';
     elDetalle.textContent = detalle;
     caja.append(elDetalle);
+  }
+
+  if (accion) {
+    const enlace = document.createElement('a');
+    enlace.className = 'boton boton--secundario estado__accion';
+    enlace.href = accion.href;
+    enlace.textContent = accion.etiqueta;
+    caja.append(enlace);
   }
   return caja;
 }

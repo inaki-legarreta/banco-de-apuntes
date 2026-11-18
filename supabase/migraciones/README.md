@@ -27,12 +27,14 @@ El detalle del esquema (tablas, restricciones, políticas) está en `docs/base-d
 
 ## supabase/manual/
 Scripts que **no** son migraciones: se corren a mano solo cuando hace falta
-(`hacer-admin.sql`, una sola vez) o para comprobar el estado (`verificacion-*.sql`).
+(`hacer-admin.sql`, una sola vez), para comprobar el estado (`verificacion-*.sql`) o para
+cargar y borrar datos de prueba (`datos-de-prueba.sql`, `borrar-datos-de-prueba.sql`).
 
 ## Migraciones
 | Archivo | Qué crea |
 |---|---|
 | `001-perfiles.sql` | Tabla `perfiles`, trigger de alta como lector, `es_admin()`, RLS. |
 | `002-items.sql` | Tabla `items` (árbol), índice de nombre único, triggers de fecha e integridad, RLS. |
+| `003-explorador.sql` | Funciones de lectura `contenido_carpeta(uuid)` y `ruta_carpeta(uuid)` (security invoker, solo `authenticated`). Verificación: `supabase/manual/verificacion-003.sql`. |
 
 Próximas: búsqueda aproximada (prompt 8) y espacio usado (prompt 9).

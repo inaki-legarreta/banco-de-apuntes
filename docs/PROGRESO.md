@@ -1,7 +1,8 @@
 # Progreso — Banco de Apuntes
 
 ## Estado actual
-- Último prompt ejecutado: 3 — Estilos y estructura de pantalla
+- Último prompt ejecutado: 4 — Explorador (esperando que Iñaki aplique 003, corra la
+  verificación y los datos de prueba, y pruebe los criterios de terminado)
 - Prompt 1: **cerrado** el 2026-11-17.
 - Prompt 2: **cerrado** el 2026-11-17.
 - Prompt 3: **cerrado** el 2026-11-18.
@@ -10,8 +11,12 @@
   y primer admin creado); login con email y contraseña, "Recordarme", cierre por
   inactividad y guardia de rutas por hash (prompt 2); estructura de pantalla, componentes de
   `js/ui/`, hoja "Cuenta", inicio con estado vacío, `#/admin` provisional y muestrario
-  (prompt 3).
-- Qué falta / próximo paso: prompt 4 (explorador).
+  (prompt 3); navegación de solo lectura del árbol: home de carreras con datos reales,
+  vista de carpeta con ruta, Volver al padre, orden natural y hoja de archivo (prompt 4,
+  falta aplicar la migración 003).
+- Qué falta / próximo paso: que Iñaki aplique `003-explorador.sql`, corra
+  `verificacion-003.sql` y `datos-de-prueba.sql`, y pruebe los criterios del prompt 4;
+  después, prompt 5.
 
 ## Dependencias
 
@@ -30,6 +35,90 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
 
 ## Bitácora (más reciente arriba)
 
+### 2026-11-18 — Prompt 4: explorador
+- Hecho:
+  - `supabase/migraciones/003-explorador.sql`: funciones `contenido_carpeta(p_padre uuid)`
+    (hijos directos con id, nombre, tipo, tamano_bytes, actualizado_en y, en carpetas,
+    cantidad de subcarpetas y de archivos directos; null = raíces) y
+    `ruta_carpeta(p_id uuid)` (ancestros de la raíz a la carpeta, recursiva, con
+    `profundidad`; sin filas si el id no existe o es un archivo). Las dos `language sql`,
+    `stable`, `security invoker`, `set search_path = ''`, con `comment on`; execute solo
+    para `authenticated`, revocado a `public` y `anon`. Sin tablas ni columnas nuevas.
+  - `supabase/manual/verificacion-003.sql`: pruebas que se deshacen solas (conteos, raíces,
+    vacía, inexistente, ruta ordenada, archivo sin ruta; como `authenticated` ve todo; como
+    `anon` no puede ejecutar; con execute dado a `anon` dentro del bloque, la función no lee
+    `items`, lo que prueba que es security invoker) y lista de chequeo `ok = true/false`.
+  - `supabase/manual/datos-de-prueba.sql` y `borrar-datos-de-prueba.sql`: "Prueba —
+    Ingeniería en Sistemas" (Carrera; 1º año con 4 materias y sus 4 secciones; Temario de
+    Análisis con Clase 1 a 11 cargadas desordenadas; Bibliografía con tildes, mayúsculas,
+    números, un nombre muy largo y uno sin extensión; pesos de 0 B a 1,3 GB; 2º año vacía)
+    y "Prueba — Carrera vacía". 51 carpetas y 27 archivos, con `clave_r2` `prueba/<uuid>`.
+    Los datos se pueden volver a cargar (borran las dos raíces de prueba antes). El borrado
+    devuelve una lista `ok`.
+  - `js/modulos/explorador/`: `servicio.js` (`obtenerContenido`, `obtenerRuta`, errores en
+    español, `ErrorExplorador`), `orden.js` (orden natural RF9), `formato.js` (peso es-AR y
+    detalle de carpeta), `filas.js` (elemento → fila de lista), `hoja-archivo.js`,
+    `pantalla-inicio.js` (tarjetas con subtítulo EP2), `pantalla-carpeta.js` (ruta, título
+    con Volver al padre EP3, lista, estados) e `index.js`.
+  - `js/ui/`: `lista.js` (`menu: false` por fila, para que las carpetas no muestren ⋮),
+    `hoja.js` (`datos` y `nota` opcionales), `estados.js` (`accion` opcional en el estado
+    vacío). `css/componentes.css`: grupo `.tarjetas`, datos y nota de la hoja, título de la
+    hoja completo (baja de línea en vez de cortarse), botón del estado vacío.
+  - Router: rutas `#/carpeta/<uuid>` (el id se valida con una expresión de uuid antes de
+    consultar) y `#/carpeta/<otra cosa>` → "Esta carpeta no existe" sin consultar. El
+    mensaje de arranque del router y el login se arman con `createElement` (pendiente del
+    prompt 3): ya no queda `innerHTML` fuera de `iconos.js`.
+  - Docs: `docs/modulos/explorador.md`, `docs/base-de-datos.md`, `docs/arquitectura.md`,
+    `docs/ui.md`, `supabase/migraciones/README.md`, `docs/decisiones.md` (EP2, EP3).
+  - Verificado por mí:
+    - SQL: con PGlite (Postgres en WASM, instalado solo en una carpeta temporal, no es
+      dependencia del proyecto) y roles `anon`/`authenticated` como en Supabase: 002 + 003
+      (dos veces, idempotente), `verificacion-003.sql` todo `ok = true` sin y con datos de
+      prueba, `datos-de-prueba.sql` dos veces seguidas, `borrar-datos-de-prueba.sql` todo
+      `ok = true` y la tabla queda vacía. Saboteando la función (security definer) la
+      verificación falla con "FALLÓ: … no es security invoker".
+    - Orden y formato en Node: Clase 1…11 y archivos al final; Bibliografía en el orden
+      esperado; pesos "0 B", "512 B", "980 KB", "1 MB", "1,2 MB", "48 MB", "1,3 GB".
+    - UI: copia temporal de la app con un Supabase falso (import map) que responde con el
+      mismo árbol que generan los datos de prueba, en Edge headless a 390 × 844: 27
+      chequeos OK (login armado sin `innerHTML`, home con dos tarjetas, orden natural,
+      detalles, ruta colapsada, Volver al padre, Atrás del navegador, recargar, hoja desde
+      la fila y desde ⋮ con foco atrapado y foco de vuelta, carrera vacía, id inventado, de
+      archivo y mal formado, error y Reintentar, respuesta tardía que no pisa otra
+      pantalla, sin desborde horizontal ni excepciones) y capturas. No pude probar contra
+      el Supabase real (no aplico migraciones ni tengo sesión): eso lo prueba Iñaki.
+- Archivos: `supabase/migraciones/003-explorador.sql`, `supabase/migraciones/README.md`,
+  `supabase/manual/{verificacion-003, datos-de-prueba, borrar-datos-de-prueba}.sql`,
+  `js/modulos/explorador/{index, servicio, orden, formato, filas, hoja-archivo,
+  pantalla-inicio, pantalla-carpeta}.js`, `js/ui/{lista, hoja, estados}.js`,
+  `css/componentes.css`, `js/core/router.js`, `js/modulos/auth/pantalla-login.js`,
+  `docs/modulos/explorador.md`, `docs/base-de-datos.md`, `docs/arquitectura.md`,
+  `docs/ui.md`, `docs/decisiones.md`, `docs/PROGRESO.md`.
+- Decisiones o cambios:
+  - Nuevas EP2 y EP3 (tabla "Detalle de DS — Estructura de pantalla"), tal como las
+    confirmó Iñaki.
+  - Sin dependencias nuevas.
+  - Criterios de implementación propios (no cambian decisiones):
+    - `ruta_carpeta` devuelve además `profundidad`, para que el orden de la ruta no
+      dependa de cómo llegan las filas.
+    - La vista de carpeta hace dos pedidos **en paralelo** (ruta y contenido): una sola
+      espera de red. Cada carpeta se pide al abrirla; nunca el árbol entero.
+    - El orden natural se aplica en el servicio (navegador), no en la base.
+    - El peso usa unidades de 1024 (como Drive y Windows).
+    - Las carpetas no muestran ⋮ hasta que tengan acciones (prompt 5).
+    - La hoja de archivo tiene una única acción, "Cerrar", para que en el celular haya
+      algo que tocar además del velo.
+    - Si hubiera archivos sueltos en la raíz, la home los lista debajo de las tarjetas
+      (no se esconden).
+- Pendientes / dudas para Iñaki:
+  - Aplicar `003-explorador.sql`, correr `verificacion-003.sql` y `datos-de-prueba.sql`,
+    probar los criterios y, al terminar, `borrar-datos-de-prueba.sql`. Anotar 003 en
+    "Migraciones aplicadas".
+  - Al volver con Atrás, la carpeta se rearma pero la lista arranca desde arriba (no se
+    recuerda el scroll). Si molesta en carpetas largas, se puede sumar en otro prompt.
+  - Las claves reales de R2 (prompt 6) no pueden empezar con `prueba/`, porque el borrado
+    de datos de prueba se apoya en ese prefijo para comprobar.
+
 ### 2026-11-18 — Cierre del prompt 3: criterios de terminado
 - Hecho: Iñaki probó los criterios de terminado 1–8 del prompt 3 y confirmó que se cumplen
   todos, incluido el login con los estilos nuevos (que yo no había podido capturar).
@@ -37,7 +126,7 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
 - Decisiones o cambios: ninguno.
 - Pendientes / dudas para Iñaki: se cierran "Probar los criterios de terminado del prompt
   3" y la captura del login. Sigue abierto el de `innerHTML` en el router y el login: lo
-  resuelve el prompt 4.
+  resuelve el prompt 4. (**Resuelto:** ver "Prompt 4: explorador".)
 
 ### 2026-11-18 — Prompt 3: estilos y estructura de pantalla
 - Hecho:
@@ -102,7 +191,8 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
     levantar la app real); conviene mirarlo al probar.
   - El router y el login todavía usan `innerHTML` con plantillas fijas, sin datos (son del
     prompt 2). No es un riesgo, pero si se quiere la regla al pie de la letra en toda la
-    app, se pueden pasar a `createElement` en un prompt futuro.
+    app, se pueden pasar a `createElement` en un prompt futuro. (**Resuelto** en el
+    prompt 4.)
 
 ### 2026-11-17 — Cierre del prompt 2: criterios de terminado
 - Hecho: Iñaki probó con `npx serve` en `http://localhost:3000` y confirmó que se cumplen

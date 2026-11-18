@@ -151,6 +151,8 @@ Fase de diseño — **en curso**. Maqueta: "Banco de Apuntes — Maqueta" (canva
 | # | Decisión |
 |---|---|
 | EP1 | El botón de cuenta del encabezado abre, para todos, una hoja "Cuenta" con el email, "Panel admin" (solo admin) y "Cerrar sesión". "Cerrar sesión" sale del Panel admin de la maqueta. |
+| EP2 | La tarjeta de cada carrera muestra como subtítulo la cantidad de contenido (por ejemplo, "6 carpetas"), igual que las filas de carpeta. No se agrega ningún campo de descripción. |
+| EP3 | El botón Volver lleva a la carpeta padre, no a la pantalla anterior del historial. |
 
 ## Etapa 5 — Arquitectura técnica (CERRADA · 2026-11-17)
 

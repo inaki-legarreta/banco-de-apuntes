@@ -7,7 +7,7 @@ BD1–BD4 (en `docs/decisiones.md`, "Detalle de AT5").
 La base guarda **solo metadatos** (el árbol y los roles). El contenido de los archivos vive
 en Cloudflare R2 (AT3).
 
-Migraciones: `supabase/migraciones/001-perfiles.sql` y `002-items.sql`.
+Migraciones: `supabase/migraciones/001-perfiles.sql`, `002-items.sql` y `003-explorador.sql`.
 Pendiente para más adelante: búsqueda aproximada (prompt 8) y espacio usado (prompt 9).
 
 ---
@@ -127,6 +127,44 @@ da error.
 Para detectar ciclos sube por los ancestros del nuevo padre; si aparece la carpeta que se
 mueve, el destino es un descendiente suyo. Limitación aceptada: dos movimientos simultáneos
 y cruzados podrían, en teoría, formar un ciclo; con un solo admin no ocurre en la práctica.
+
+---
+
+## Funciones de lectura del árbol (migración 003)
+
+Las usa el módulo `explorador` (`js/modulos/explorador/servicio.js`) para navegar (RF3).
+No agregan tablas ni columnas.
+
+| Función | Devuelve | Para qué |
+|---|---|---|
+| `contenido_carpeta(p_padre uuid)` | `id, nombre, tipo, tamano_bytes, actualizado_en, subcarpetas, archivos` | Hijos directos de una carpeta (`p_padre` null = carpetas raíz, la home). `subcarpetas` y `archivos` cuentan el contenido directo de cada carpeta (null en archivos). Una sola consulta por pantalla (RNF4). |
+| `ruta_carpeta(p_id uuid)` | `id, nombre, profundidad` | Ancestros de una carpeta, de la raíz (profundidad 0) hacia abajo e incluyendo la propia. Sin filas si el id no existe o es un archivo ("Esta carpeta no existe"). |
+
+- **`language sql`, `stable`, `security invoker`, `set search_path = ''`**, con
+  `comment on`. Al ser *security invoker* corren con los permisos de quien llama: RLS de
+  `items` sigue aplicando.
+- **Permisos:** `execute` solo para `authenticated`; revocado a `public` y a `anon`. Sin
+  sesión no devuelven nada (RNF5).
+- **Sin orden:** `contenido_carpeta` no ordena; el orden natural (RF9) lo aplica el
+  frontend con `Intl.Collator` (ver `docs/modulos/explorador.md`). `ruta_carpeta` sí sale
+  ordenada de la raíz hacia abajo, y además trae `profundidad` para no depender de eso.
+- **Índices:** las dos usan `items_nombre_unico_por_carpeta` (empieza por `padre_id`) para
+  buscar hijos; `ruta_carpeta` usa la clave primaria para subir por los padres. Por eso el
+  filtro de `contenido_carpeta` separa la raíz (`padre_id is null`) del resto
+  (`padre_id = p_padre`): `is not distinct from` no usaría el índice.
+- **Defensa:** `ruta_carpeta` corta la recursión a los 1000 niveles por si alguna vez
+  existiera un ciclo (los triggers de 002 ya los impiden).
+
+Verificación: `supabase/manual/verificacion-003.sql` (pruebas que se deshacen solas, con
+los roles `authenticated` y `anon`, más una lista de chequeo `ok = true/false`).
+
+### Datos de prueba
+`supabase/manual/datos-de-prueba.sql` carga dos carpetas raíz de prueba ("Prueba —
+Ingeniería en Sistemas" y "Prueba — Carrera vacía") con archivos de mentira cuya
+`clave_r2` empieza con `prueba/` (no existen en R2). `supabase/manual/borrar-datos-de-prueba.sql`
+borra las dos raíces (el resto cae en cascada, BD2) y comprueba que no quede ninguna fila
+con `clave_r2 like 'prueba/%'`. Las claves reales de R2 nunca tienen que empezar con
+`prueba/`.
 
 ---
 

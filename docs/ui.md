@@ -131,7 +131,8 @@ crearIconoItem(tipo, nombre, extension?) // el ícono suelto (lo usa la hoja de 
   largos se cortan con "…" sin romper la fila; el nombre completo queda en `title`.
 - Con `href` la fila es un enlace; sin `href`, un botón que llama a `alAbrir(item)`.
 - Con `alMenu`, cada fila suma un botón ⋮ de 44 px (`aria-label="Acciones de <nombre>"`)
-  que llama a `alMenu(item, boton)`.
+  que llama a `alMenu(item, boton)`. Una fila con `menu: false` no lo lleva (prompt 4: las
+  carpetas todavía no tienen acciones).
 
 ## `tarjeta.js` — Tarjeta de carrera
 
@@ -139,7 +140,9 @@ crearIconoItem(tipo, nombre, extension?) // el ícono suelto (lo usa la hoja de 
 crearTarjeta({ nombre, subtitulo, href }) // → <a class="tarjeta">
 ```
 
-Ícono dorado de carpeta, nombre, subtítulo y chevron. Toda la tarjeta es el enlace.
+Ícono dorado de carpeta, nombre, subtítulo y chevron. Toda la tarjeta es el enlace. Para
+apilar varias, van dentro de un contenedor con la clase `tarjetas` (grilla con 10 px de
+separación).
 
 ## `hoja.js` — Hoja inferior
 
@@ -147,6 +150,8 @@ crearTarjeta({ nombre, subtitulo, href }) // → <a class="tarjeta">
 const elegida = await abrirHoja({
   encabezado: { titulo: 'Parcial1_2025.pdf', detalle: '2,4 MB', icono: crearIconoItem(...) },
   // o, sin encabezado: etiqueta: 'Acciones'
+  datos: [{ etiqueta: 'Ubicación', valor: 'Banco › AM I › Parciales' }], // opcional
+  nota: 'La descarga llega pronto.',                                     // opcional
   acciones: [
     { id: 'descargar', etiqueta: 'Descargar', icono: 'descargar', tipo: 'destacada' },
     { id: 'renombrar', etiqueta: 'Renombrar', icono: 'lapiz' },
@@ -159,6 +164,10 @@ const elegida = await abrirHoja({
 Velo `rgba(3,7,15,0.62)`, panel `#111F3B` con esquinas de arriba de 26 px, manija y
 acciones de 52 px: **normal**, **destacada** (dorado) y **peligro** (`#F2A6A6`). La promesa
 resuelve cuando la hoja terminó de cerrarse y el foco ya volvió.
+
+- El título del encabezado muestra el nombre **completo**: si es largo, baja de línea.
+- `datos`: pares etiqueta-valor (`<dl>`) debajo del encabezado.
+- `nota`: aviso breve con borde dorado suave, debajo de los datos.
 
 ## `dialogo.js` — Diálogo de confirmación
 
@@ -181,7 +190,8 @@ const ok = await confirmar({
 ## `estados.js` — Vacío, cargando y error
 
 ```js
-crearEstadoVacio({ titulo = 'Esta carpeta está vacía', detalle?, icono = 'carpeta' })
+crearEstadoVacio({ titulo = 'Esta carpeta está vacía', detalle?, icono = 'carpeta',
+                   accion?: { etiqueta, href } })  // accion: enlace con forma de botón
 crearEstadoCargando({ filas = 4, texto = 'Cargando…' }) // filas esqueleto, role="status"
 crearEstadoError({ mensaje, alReintentar? })            // role="alert" + "Reintentar"
 ```

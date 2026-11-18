@@ -11,44 +11,6 @@
 import { iniciarSesion, consumirAvisoCierre, ErrorAuth } from './servicio.js';
 import { crearIcono } from '../../ui/iconos.js';
 
-/**
- * Estructura fija de la pantalla. No contiene datos: los textos variables (aviso y error)
- * se escriben con textContent.
- */
-const PLANTILLA = `
-  <section class="login" aria-labelledby="login-titulo">
-    <div class="login__tarjeta">
-      <div class="login__marca">
-        <span class="login__marca-icono" aria-hidden="true"></span>
-        <h1 id="login-titulo" class="login__titulo">Banco de Apuntes</h1>
-      </div>
-      <p class="login__aviso" role="status" hidden></p>
-      <form class="login__formulario" novalidate>
-        <div class="campo">
-          <label class="campo__etiqueta" for="login-email">Email</label>
-          <input class="campo__entrada" id="login-email" name="email" type="email"
-            autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false"
-            required />
-        </div>
-        <div class="campo">
-          <label class="campo__etiqueta" for="login-contrasena">Contraseña</label>
-          <input class="campo__entrada" id="login-contrasena" name="contrasena" type="password"
-            autocomplete="current-password" required />
-        </div>
-        <label class="login__casilla">
-          <input class="login__casilla-control" name="recordarme" type="checkbox" />
-          <span class="login__casilla-texto">
-            Recordarme en este dispositivo
-            <span class="login__casilla-ayuda">Solo en dispositivos propios</span>
-          </span>
-        </label>
-        <p class="login__error" aria-live="polite"></p>
-        <button class="boton boton--principal" type="submit">Ingresar</button>
-      </form>
-    </div>
-  </section>
-`;
-
 /** Textos del botón según el estado del envío. */
 const TEXTO_BOTON = Object.freeze({ normal: 'Ingresar', esperando: 'Ingresando…' });
 
@@ -56,22 +18,122 @@ const TEXTO_BOTON = Object.freeze({ normal: 'Ingresar', esperando: 'Ingresando�
 const MENSAJE_INCOMPLETO = 'Completá el email y la contraseña.';
 
 /**
+ * Crea un elemento con clase y atributos.
+ * Existe para que la estructura del login se lea como un árbol y no como una lista larga
+ * de setAttribute. Los textos se escriben con textContent.
+ * @param {string} etiqueta
+ * @param {{ clase?: string, texto?: string, atributos?: Record<string, string> }} [opciones]
+ * @param {Node[]} [hijos]
+ * @returns {HTMLElement}
+ */
+function crear(etiqueta, { clase, texto, atributos = {} } = {}, hijos = []) {
+  const elemento = document.createElement(etiqueta);
+  if (clase) elemento.className = clase;
+  if (texto) elemento.textContent = texto;
+  for (const [nombre, valor] of Object.entries(atributos)) elemento.setAttribute(nombre, valor);
+  elemento.append(...hijos);
+  return elemento;
+}
+
+/**
+ * Arma la estructura fija de la pantalla. No contiene datos: los textos variables (aviso y
+ * error) se escriben después con textContent.
+ * @returns {{ seccion: HTMLElement, marcaIcono: HTMLElement, formulario: HTMLFormElement,
+ *   zonaAviso: HTMLElement, zonaError: HTMLElement }}
+ */
+function crearEstructura() {
+  const marcaIcono = crear('span', { clase: 'login__marca-icono', atributos: { 'aria-hidden': 'true' } });
+  const marca = crear('div', { clase: 'login__marca' }, [
+    marcaIcono,
+    crear('h1', { clase: 'login__titulo', texto: 'Banco de Apuntes', atributos: { id: 'login-titulo' } }),
+  ]);
+
+  const zonaAviso = crear('p', { clase: 'login__aviso', atributos: { role: 'status' } });
+  zonaAviso.hidden = true;
+
+  const campoEmail = crear('div', { clase: 'campo' }, [
+    crear('label', { clase: 'campo__etiqueta', texto: 'Email', atributos: { for: 'login-email' } }),
+    crear('input', {
+      clase: 'campo__entrada',
+      atributos: {
+        id: 'login-email',
+        name: 'email',
+        type: 'email',
+        autocomplete: 'email',
+        inputmode: 'email',
+        autocapitalize: 'off',
+        spellcheck: 'false',
+        required: '',
+      },
+    }),
+  ]);
+
+  const campoContrasena = crear('div', { clase: 'campo' }, [
+    crear('label', {
+      clase: 'campo__etiqueta',
+      texto: 'Contraseña',
+      atributos: { for: 'login-contrasena' },
+    }),
+    crear('input', {
+      clase: 'campo__entrada',
+      atributos: {
+        id: 'login-contrasena',
+        name: 'contrasena',
+        type: 'password',
+        autocomplete: 'current-password',
+        required: '',
+      },
+    }),
+  ]);
+
+  const textoCasilla = crear('span', { clase: 'login__casilla-texto' }, [
+    document.createTextNode('Recordarme en este dispositivo'),
+    crear('span', { clase: 'login__casilla-ayuda', texto: 'Solo en dispositivos propios' }),
+  ]);
+  const casilla = crear('label', { clase: 'login__casilla' }, [
+    crear('input', {
+      clase: 'login__casilla-control',
+      atributos: { name: 'recordarme', type: 'checkbox' },
+    }),
+    textoCasilla,
+  ]);
+
+  const zonaError = crear('p', { clase: 'login__error', atributos: { 'aria-live': 'polite' } });
+
+  const formulario = crear('form', { clase: 'login__formulario', atributos: { novalidate: '' } }, [
+    campoEmail,
+    campoContrasena,
+    casilla,
+    zonaError,
+    crear('button', {
+      clase: 'boton boton--principal',
+      texto: TEXTO_BOTON.normal,
+      atributos: { type: 'submit' },
+    }),
+  ]);
+
+  const seccion = crear(
+    'section',
+    { clase: 'login', atributos: { 'aria-labelledby': 'login-titulo' } },
+    [crear('div', { clase: 'login__tarjeta' }, [marca, zonaAviso, formulario])],
+  );
+
+  return { seccion, marcaIcono, formulario, zonaAviso, zonaError };
+}
+
+/**
  * Monta la pantalla de login en el contenedor.
  * @param {HTMLElement} contenedor
  */
 export function montarPantallaLogin(contenedor) {
-  contenedor.innerHTML = PLANTILLA;
+  const { seccion, marcaIcono, formulario, zonaAviso, zonaError } = crearEstructura();
+  contenedor.replaceChildren(seccion);
   // El ícono de libro sale de iconos.js, igual que en el encabezado de las demás pantallas.
-  contenedor
-    .querySelector('.login__marca-icono')
-    .append(crearIcono('libro', { tamano: 28, grosor: 2.2 }));
+  marcaIcono.append(crearIcono('libro', { tamano: 28, grosor: 2.2 }));
 
-  const formulario = contenedor.querySelector('.login__formulario');
   const email = formulario.elements.namedItem('email');
   const contrasena = formulario.elements.namedItem('contrasena');
   const recordarme = formulario.elements.namedItem('recordarme');
-  const zonaError = contenedor.querySelector('.login__error');
-  const zonaAviso = contenedor.querySelector('.login__aviso');
   const boton = formulario.querySelector('button[type="submit"]');
 
   // Aviso de por qué se cerró la sesión anterior (por ejemplo, inactividad), una sola vez.

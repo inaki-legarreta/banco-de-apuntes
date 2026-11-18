@@ -117,16 +117,20 @@ login va sin ella. Detalle de cada componente en [`ui.md`](ui.md).
 ## Ruteo por hash
 
 El hosting es estático y sin compilación (AT1, AT4): el servidor siempre entrega
-`index.html` y la ruta va después del `#` (`#/login`, `#/`, `#/admin`, `#/muestrario`, y
-más adelante `#/carpeta/<id>` y `#/buscar`).
+`index.html` y la ruta va después del `#` (`#/login`, `#/`, `#/carpeta/<id>`, `#/admin`,
+`#/muestrario`, y más adelante `#/buscar`).
 
 | Ruta | Pantalla | Acceso |
 |---|---|---|
 | `#/login` | Login (`auth`), sin estructura de pantalla | Pública; con sesión lleva a `#/` |
 | `#/` | Inicio: home de carreras (`explorador`) | Con sesión |
+| `#/carpeta/<id>` | Vista de una carpeta (`explorador`). `<id>` tiene que tener forma de uuid; si no, "Esta carpeta no existe" sin consultar la base | Con sesión |
 | `#/admin` | Panel admin: **provisional hasta el prompt 9** (`admin`) | Solo admin |
-| `#/muestrario` | Muestrario de componentes: **provisional, se borra en el prompt 11** (`js/muestrario/`) | Solo admin | `js/core/router.js` tiene una **tabla de rutas** (patrón, si es
-pública y qué pantalla carga); sumar una pantalla es sumar una entrada.
+| `#/muestrario` | Muestrario de componentes: **provisional, se borra en el prompt 11** (`js/muestrario/`) | Solo admin |
+
+`js/core/router.js` tiene una **tabla de rutas** (patrón, si es pública y qué pantalla
+carga); sumar una pantalla es sumar una entrada. Gana la primera entrada que coincide: por
+eso `#/carpeta/<uuid>` va antes que `#/carpeta/<cualquier otra cosa>`.
 
 Guardia (RNF5), aplicada en cada cambio de ruta y de sesión:
 - Sin sesión, cualquier ruta privada lleva a `#/login`. Todas las rutas son privadas salvo
@@ -140,6 +144,23 @@ Guardia (RNF5), aplicada en cada cambio de ruta y de sesión:
   Atrás no vuelve a una pantalla rechazada. Al perder la sesión, `#app` se vacía antes de
   navegar.
 - Cada pantalla se importa recién cuando se necesita (`import()` dinámico).
+- El router y el login arman su estructura con `createElement` (sin `innerHTML`).
+
+## Navegación del árbol (prompt 4)
+
+```
+#/  ──► explorador.montarPantallaInicio ──► servicio.obtenerContenido(null)
+                                              └─► rpc contenido_carpeta(null)   (1 pedido)
+#/carpeta/<uuid> ──► explorador.montarPantallaCarpeta
+                      ├─► servicio.obtenerRuta(id)      ─► rpc ruta_carpeta      ┐ en
+                      └─► servicio.obtenerContenido(id) ─► rpc contenido_carpeta ┘ paralelo
+```
+
+- Una consulta por carpeta abierta (RNF4); nunca se trae el árbol entero.
+- Todo sale de la URL: Atrás, Volver (va a la carpeta padre, EP3) y recargar rearman la
+  vista desde el id.
+- El orden natural (RF9) se aplica en el servicio, en el navegador. Detalle en
+  [`modulos/explorador.md`](modulos/explorador.md).
 
 ## Dónde vive cada secreto
 
