@@ -1,0 +1,62 @@
+/*
+ * base.css — Reset y estilos globales de la app.
+ * Responsabilidad: dejar un punto de partida uniforme entre navegadores y aplicar fondo,
+ * tipografía y colores base desde los tokens. No contiene estilos de componentes.
+ */
+
+/* Para que padding y borde no sumen ancho y el layout a 390 px sea predecible. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Quita márgenes por defecto para que el espaciado lo controle siempre la app. */
+body,
+h1,
+h2,
+h3,
+p,
+ul,
+ol {
+  margin: 0;
+}
+
+/* Fondo y tipografía globales: la app es oscura en todas las pantallas (DS5). */
+html {
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--azul-900);
+  color: var(--texto);
+  font-family: var(--fuente);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Las imágenes nunca desbordan su contenedor en pantallas angostas. */
+img,
+svg {
+  max-width: 100%;
+  display: block;
+}
+
+/* Los controles heredan la tipografía de la app en lugar de la del sistema. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* Foco visible y consistente para navegación por teclado. */
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}

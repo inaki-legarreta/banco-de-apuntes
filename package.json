@@ -1,0 +1,9 @@
+{
+  "name": "banco-de-apuntes",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Banco de Apuntes. Este package.json existe SOLO para las funciones de /api (Vercel); el frontend no usa npm.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "dependencies": {}
+}

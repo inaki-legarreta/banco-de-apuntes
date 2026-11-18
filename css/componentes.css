@@ -1,0 +1,27 @@
+/*
+ * componentes.css — Estilos de los componentes reutilizables de la UI.
+ * Responsabilidad: definir el aspecto de piezas compartidas (botones, listas, modales...).
+ * En el prompt 0 solo existe la portada provisional; el resto llega en el prompt 3.
+ */
+
+/* Portada provisional del esqueleto: muestra el nombre centrado mientras no hay pantallas. */
+.portada {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--azul-850);
+}
+
+/* Título de la portada; el dorado en degradé se reserva para este acento (DS5). */
+.portada__titulo {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-align: center;
+  background: var(--degrade-dorado);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

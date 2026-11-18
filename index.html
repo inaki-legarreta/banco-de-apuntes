@@ -1,0 +1,36 @@
+<!doctype html>
+<!--
+  index.html — Punto de entrada único de Banco de Apuntes.
+  Responsabilidad: cargar la tipografía, los estilos y el router. Las pantallas se renderizan
+  desde JS en #app; ningún dato se escribe a mano en este HTML.
+-->
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#08101F" />
+    <title>Banco de Apuntes</title>
+
+    <!-- Tipografía Manrope (DS5). preconnect acelera la descarga en datos móviles (RNF4). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    />
+
+    <!-- Orden importa: primero tokens, después reset/base, después componentes. -->
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/componentes.css" />
+
+    <!-- Router como módulo nativo de JS (AT4: sin bundler ni compilación). -->
+    <script type="module" src="js/core/router.js"></script>
+  </head>
+  <body>
+    <!-- Contenedor donde el router montará las pantallas. Por ahora, portada provisional. -->
+    <main id="app" class="portada">
+      <h1 class="portada__titulo">Banco de Apuntes</h1>
+    </main>
+  </body>
+</html>
