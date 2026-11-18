@@ -40,9 +40,12 @@
 - Decisiones o cambios: se conserva la historia del remoto (se descartó el force push).
 - Pendientes / dudas para Iñaki:
   - `README.md` está en UTF-16: GitHub lo muestra raro y git lo trata como binario. Se
-    puede reescribir en UTF-8 con una descripción real del proyecto.
+    puede reescribir en UTF-8 con una descripción real del proyecto. (Resuelto: reescrito en
+    UTF-8, ver "README.md reescrito en UTF-8".)
   - La carpeta padre (`Banco de apuntes/`) todavía tiene su `.git`, su `README.md` y su `.env`
-    vacío. Ahora que todo está en este repo, se pueden borrar.
+    vacío. Ahora que todo está en este repo, se pueden borrar. (**Sigue abierto:** se pidió
+    borrarlos solo si su `.git` no tenía remoto, pero tiene `origin` →
+    `inaki-legarreta/banco-de-apuntes`. No se borró nada; falta que Iñaki confirme.)
 
 ### 2026-11-17 — Cierre del prompt 0: quitar copia de prompts
 - Hecho: se eliminó `docs/prompts-claude-code.md` del repo. La fuente de verdad de los
