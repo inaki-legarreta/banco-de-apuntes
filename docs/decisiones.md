@@ -160,6 +160,15 @@ Fase de diseño — **en curso**. Maqueta: "Banco de Apuntes — Maqueta" (canva
 | AT8 | **Trazabilidad (P4):** el código vive en un repositorio git, con commits descriptivos, documentación por módulo en `docs/` y este registro de decisiones actualizado ante cada cambio. |
 | AT9 | **Regiones (2026-11-17, al crear la infraestructura):** Supabase en **us-west-2 (Oregón)**, porque São Paulo no estaba disponible. R2 en **ENAM** (Este de Norteamérica, lo más cerca de Argentina; los archivos viajan directo entre el dispositivo y R2). Funciones de Vercel en **`pdx1`** (Portland), junto a Supabase, para reducir la latencia de `/api`; se configura en el prompt 11. El CORS de R2 permite `http://localhost:3000` (GET y PUT); el dominio de Vercel se agrega en el prompt 11. RNF4 se valida en la puesta en marcha. |
 
+### Detalle de AT5
+
+| # | Decisión |
+|---|---|
+| BD1 | Dentro de una misma carpeta no puede haber dos elementos con el mismo nombre (sin distinguir mayúsculas). Vale también para las carpetas raíz. |
+| BD2 | Borrar una carpeta borra en cascada su contenido en la base. Los objetos de R2 los borra /api antes (prompts 5 y 6). |
+| BD3 | Toda cuenta nueva nace como lector. El primer admin se marca a mano con SQL, una sola vez. |
+| BD4 | El registro público de Supabase Auth está desactivado (D5). Las cuentas las crea el admin (prompt 9). |
+
 ## Etapa 6 — Prompts para Claude Code (EN CURSO)
 
 | # | Decisión |

@@ -1,15 +1,70 @@
 # Progreso — Banco de Apuntes
 
 ## Estado actual
-- Último prompt ejecutado: 0 — Base del proyecto
-- Qué funciona hoy: esqueleto del proyecto con la estructura de AT4. `index.html` muestra
-  "Banco de Apuntes" centrado, con fondo azul oscuro y tipografía Manrope, usando los tokens
-  DS5. Reglas permanentes en `CLAUDE.md`, arquitectura en `docs/arquitectura.md` y un doc por
-  módulo en `docs/modulos/`. Sin lógica de negocio.
-- Qué falta / próximo paso: prompt 1 — Base de datos (tablas `items` y `perfiles`, RLS,
-  primera migración en `supabase/migraciones/`).
+- Último prompt ejecutado: 1 — Base de datos
+- Qué funciona hoy: esqueleto del proyecto (prompt 0) y el esquema de la base escrito en
+  `supabase/migraciones/001-perfiles.sql` y `002-items.sql` (tablas `perfiles` e `items`,
+  triggers de integridad y RLS), documentado en `docs/base-de-datos.md`. Las migraciones
+  **todavía no están aplicadas** en Supabase: las aplica Iñaki a mano.
+- Qué falta / próximo paso: Iñaki aplica 001 y 002, corre la verificación y marca el primer
+  admin (paso a paso en `docs/base-de-datos.md`). Después, prompt 2.
+
+## Migraciones aplicadas
+Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
+
+| Migración | Fecha de aplicación | Verificación |
+|---|---|---|
+| `001-perfiles.sql` | pendiente | pendiente |
+| `002-items.sql` | pendiente | pendiente |
+| Primer admin (`supabase/manual/hacer-admin.sql`) | pendiente | — |
 
 ## Bitácora (más reciente arriba)
+
+### 2026-11-17 — Prompt 1: base de datos
+- Hecho:
+  - `supabase/migraciones/001-perfiles.sql`: tabla `perfiles` (rol admin/lector), trigger
+    `crear_perfil_al_registrar` en `auth.users` que crea el perfil como lector (BD3),
+    función `es_admin()` y RLS (cada usuario lee el suyo, el admin lee todos, sin escritura
+    desde el cliente). También crea el perfil de cuentas que ya existieran en `auth.users`.
+  - `supabase/migraciones/002-items.sql`: tabla `items` (árbol genérico, AT5/D25) con
+    restricciones de nombre, tipo y datos según tipo; índice único `(padre_id,
+    lower(nombre))` con `NULLS NOT DISTINCT` (BD1); índice por `padre_id`; triggers de
+    `actualizado_en` y de integridad del padre (sin ciclos, mensajes en español); RLS (con
+    sesión se lee, solo el admin escribe, nada para anon).
+  - Además de RLS, se quitaron a `anon` los permisos sobre ambas tablas y la ejecución de
+    `es_admin()` (segunda barrera para RNF5).
+  - `supabase/manual/hacer-admin.sql` (primer admin, una sola vez) y
+    `supabase/manual/verificacion-001-002.sql` (pruebas de comportamiento que se deshacen
+    solas + lista de chequeo con `ok = true/false`).
+  - `docs/base-de-datos.md`: esquema, diagrama, RLS, cómo aplicar y paso a paso del admin.
+  - `supabase/migraciones/README.md`: procedimiento de aplicación.
+  - `.env.example`: aclarado que `SUPABASE_ANON_KEY` guarda la publishable key
+    (`sb_publishable_...`) y `SUPABASE_SERVICE_ROLE_KEY` la secret key (`sb_secret_...`).
+    El archivo figuraba como borrado en el working tree; se recreó a partir de la versión
+    del repo con los comentarios nuevos. El `.env` no se tocó ni se leyó.
+  - `docs/decisiones.md`: tabla "Detalle de AT5" con BD1–BD4, ubicada inmediatamente
+    después de la tabla de la Etapa 5 (después de AT9), para no partir esa tabla.
+- Archivos: `supabase/migraciones/001-perfiles.sql`, `supabase/migraciones/002-items.sql`,
+  `supabase/migraciones/README.md`, `supabase/manual/hacer-admin.sql`,
+  `supabase/manual/verificacion-001-002.sql`, `docs/base-de-datos.md`, `docs/decisiones.md`,
+  `.env.example`, `docs/PROGRESO.md`.
+- Decisiones o cambios:
+  - Nuevas BD1–BD4 (detalle de AT5).
+  - La convención de nombres de migraciones pasa de `AAAAMMDD-NN-descripcion.sql` a
+    `NNN-descripcion.sql`, como pide el prompt 1. Los scripts que no son migraciones van en
+    `supabase/manual/`.
+  - Se agregó `actualizado_en` a `items` (lo pide el prompt 1; AT5 decía "fecha").
+- Pendientes / dudas para Iñaki:
+  - Aplicar 001 y 002, correr la verificación y marcar el primer admin; anotar las fechas
+    en "Migraciones aplicadas".
+  - Desactivar el registro público en Supabase Auth (BD4), si no se hizo.
+  - `items_padre_id_idx` es redundante con el índice único `(padre_id, lower(nombre))`, que
+    ya empieza por `padre_id`. Se creó porque lo pide el prompt; se puede borrar en una
+    migración futura si se quiere ahorrar escritura.
+  - El trigger de integridad no cubre un cambio de `tipo` (por ejemplo, una carpeta con
+    hijos que pasa a `archivo`). La app no ofrece esa operación; si se quiere blindar, va
+    en una migración futura.
+  - La sección "Criterios de terminado" del prompt 1 llegó vacía.
 
 ### 2026-11-17 — README.md reescrito en UTF-8
 - Hecho: se reescribió `README.md` en UTF-8 (antes estaba en UTF-16, git lo trataba como
