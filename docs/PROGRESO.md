@@ -43,9 +43,11 @@
     puede reescribir en UTF-8 con una descripción real del proyecto. (Resuelto: reescrito en
     UTF-8, ver "README.md reescrito en UTF-8".)
   - La carpeta padre (`Banco de apuntes/`) todavía tiene su `.git`, su `README.md` y su `.env`
-    vacío. Ahora que todo está en este repo, se pueden borrar. (**Sigue abierto:** se pidió
-    borrarlos solo si su `.git` no tenía remoto, pero tiene `origin` →
-    `inaki-legarreta/banco-de-apuntes`. No se borró nada; falta que Iñaki confirme.)
+    vacío. Ahora que todo está en este repo, se pueden borrar. (**Resuelto:** Iñaki confirmó y
+    se borraron `.git`, `README.md` y `.env` de la carpeta padre. Su remoto era el mismo repo
+    del proyecto y su único commit, `0471733`, ya forma parte de nuestra historia (se unió en
+    el merge `6223d01`). No tenía otras ramas, stashes ni cambios aparte del `.env` vacío, así
+    que no se perdió nada.)
 
 ### 2026-11-17 — Cierre del prompt 0: quitar copia de prompts
 - Hecho: se eliminó `docs/prompts-claude-code.md` del repo. La fuente de verdad de los
