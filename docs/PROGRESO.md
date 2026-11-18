@@ -11,6 +11,17 @@
 
 ## Bitácora (más reciente arriba)
 
+### 2026-11-17 — CLAUDE.md: forma de trabajo y regla de .env
+- Hecho: se agregó a `CLAUDE.md` la sección "Forma de trabajo": leer `docs/PROGRESO.md` al
+  iniciar cada sesión, hacer solo lo que pide el prompt actual (lo demás se anota como
+  pendiente) y hacer push a `origin` al cerrar cada prompt. En "Seguridad" se sumó: nunca
+  leer, mostrar ni copiar el contenido de `.env`.
+- Archivos: `CLAUDE.md`, `docs/PROGRESO.md`.
+- Decisiones o cambios: reglas nuevas de proceso para Claude Code; no cambia ninguna decisión
+  de `docs/decisiones.md`.
+- Pendientes / dudas para Iñaki: siguen abiertos los de la entrada anterior (`README.md` en
+  UTF-16 y los restos de la carpeta padre).
+
 ### 2026-11-17 — Cierre del prompt 0: unión con el remoto y primer push
 - Hecho: se unió la historia local con `origin/main` (`git pull origin main
   --allow-unrelated-histories`, merge `6223d01`), sin conflictos. El remoto solo tenía

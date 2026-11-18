@@ -9,6 +9,12 @@ cualquier dispositivo. No tiene lógica académica ni de negocio (D28).
 registrada ahí, **frenar y avisar antes de implementar**. Nunca resolver la contradicción en
 silencio.
 
+## Forma de trabajo
+- Al iniciar cada sesión, **leer `docs/PROGRESO.md`** antes de hacer cualquier cosa.
+- **Alcance:** hacer solo lo que pide el prompt actual. Lo que surja fuera de eso se anota
+  como pendiente en `docs/PROGRESO.md`, no se implementa.
+- Al cerrar cada prompt (criterios de terminado cumplidos), **hacer push a `origin`**.
+
 ## Stack y prohibiciones
 - Hosting y funciones de servidor: **Vercel** (frontend estático + funciones en `/api`) — AT1.
 - Login y base de datos: **Supabase** (Auth + Postgres; la base guarda solo metadatos) — AT2.
@@ -49,6 +55,7 @@ silencio.
 ## Seguridad
 - **Nunca** claves en el código ni en el repo. Los valores reales van solo en `.env` local
   (ignorado por git) y en las variables de entorno de Vercel.
+- **Nunca leer, mostrar ni copiar el contenido de `.env`.**
 - La **service role key de Supabase** y las **claves de R2** existen **solo en `/api`**
   (servidor). El navegador solo conoce la URL de Supabase y la clave pública (anon).
 - Sin sesión no se ve nada (RNF5): toda lectura de datos requiere usuario autenticado y toda
