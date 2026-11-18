@@ -2,23 +2,37 @@
 
 ## Estado actual
 - Último prompt ejecutado: 1 — Base de datos
-- Qué funciona hoy: esqueleto del proyecto (prompt 0) y el esquema de la base escrito en
-  `supabase/migraciones/001-perfiles.sql` y `002-items.sql` (tablas `perfiles` e `items`,
-  triggers de integridad y RLS), documentado en `docs/base-de-datos.md`. Las migraciones
-  **todavía no están aplicadas** en Supabase: las aplica Iñaki a mano.
-- Qué falta / próximo paso: Iñaki aplica 001 y 002, corre la verificación y marca el primer
-  admin (paso a paso en `docs/base-de-datos.md`). Después, prompt 2.
+- Prompt 1: **cerrado** el 2026-11-17.
+- Qué funciona hoy: esqueleto del proyecto (prompt 0) y la base de datos en Supabase:
+  tablas `perfiles` e `items`, triggers de integridad y RLS (`001-perfiles.sql` y
+  `002-items.sql`, aplicadas y verificadas), documentadas en `docs/base-de-datos.md`.
+  Registro público de Supabase Auth desactivado (BD4) y primer admin creado (BD3).
+- Qué falta / próximo paso: prompt 2.
 
 ## Migraciones aplicadas
 Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
 
 | Migración | Fecha de aplicación | Verificación |
 |---|---|---|
-| `001-perfiles.sql` | pendiente | pendiente |
-| `002-items.sql` | pendiente | pendiente |
-| Primer admin (`supabase/manual/hacer-admin.sql`) | pendiente | — |
+| `001-perfiles.sql` | 2026-11-17 | `verificacion-001-002.sql`: todo `ok = true` |
+| `002-items.sql` | 2026-11-17 | `verificacion-001-002.sql`: todo `ok = true` |
+| Primer admin (`supabase/manual/hacer-admin.sql`) | 2026-11-17 | Devolvió una fila con `rol = admin` |
 
 ## Bitácora (más reciente arriba)
+
+### 2026-11-17 — Cierre del prompt 1: migraciones aplicadas en Supabase
+- Hecho: Iñaki aplicó todo a mano en Supabase:
+  - Desactivó el registro público de Supabase Auth (BD4).
+  - Corrió `001-perfiles.sql` y `002-items.sql` en el SQL Editor, en orden.
+  - Corrió `verificacion-001-002.sql`: las pruebas de comportamiento pasaron y todos los
+    chequeos dieron `ok = true`.
+  - Creó su usuario y corrió `hacer-admin.sql`, que devolvió `rol = admin` (BD3).
+- Archivos: `docs/PROGRESO.md` (tabla "Migraciones aplicadas" y estado actual).
+- Decisiones o cambios: ninguno. Desde ahora, 001 y 002 están aplicadas y no se editan:
+  cualquier cambio al esquema va en una migración nueva (`003-...`).
+- Pendientes / dudas para Iñaki: se cierran los de aplicar las migraciones, verificar,
+  marcar el primer admin y desactivar el registro público. Sigue abierto que la sección
+  "Criterios de terminado" del prompt 1 llegó vacía (solo como registro).
 
 ### 2026-11-17 — Ajustes al prompt 1 (antes de aplicar las migraciones)
 - Hecho: como 002 todavía no se había aplicado, se editó `002-items.sql` en lugar de crear
