@@ -18,14 +18,14 @@
  * Existe para que el cliente de Supabase sepa a qué proyecto conectarse.
  * Se copia de Supabase → Project Settings → API (o Data API) → Project URL.
  */
-export const SUPABASE_URL = 'PEGAR_URL_AQUI';
+export const SUPABASE_URL = 'https://otqczdfmvqcssxomnoup.supabase.co';
 
 /**
  * Publishable key de Supabase (sb_publishable_..., pública, protegida por RLS).
  * Existe para identificar a la app ante Supabase; no da permisos por sí sola (LS1).
  * Se copia de Supabase → Project Settings → API Keys → Publishable key.
  */
-export const SUPABASE_PUBLISHABLE_KEY = 'PEGAR_PUBLISHABLE_KEY_AQUI';
+export const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_dvCwAJ82U71Wzr9vRaLLEw_4SLfdDme';
 
 /**
  * Minutos sin uso tras los que la sesión se cierra sola, si "Recordarme" está desactivado

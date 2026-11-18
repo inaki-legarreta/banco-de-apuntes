@@ -3,8 +3,8 @@
 ## Estado actual
 - Último prompt ejecutado: 2 — Login y sesión
 - Prompt 1: **cerrado** el 2026-11-17.
-- Prompt 2: **implementado** el 2026-11-17; esperando que Iñaki pegue los valores en
-  `js/core/config.js` y pruebe los criterios de terminado.
+- Prompt 2: **implementado** el 2026-11-17, con los valores reales en `js/core/config.js`;
+  esperando que Iñaki pruebe los criterios de terminado.
 - Qué funciona hoy: esqueleto del proyecto (prompt 0); base de datos en Supabase (prompt 1:
   `perfiles`, `items`, triggers y RLS, aplicadas y verificadas; registro público desactivado
   y primer admin creado); login con email y contraseña, "Recordarme", cierre por
@@ -27,6 +27,15 @@ Se anota cada migración cuando Iñaki la ejecuta en el SQL Editor de Supabase.
 | Primer admin (`supabase/manual/hacer-admin.sql`) | 2026-11-17 | Devolvió una fila con `rol = admin` |
 
 ## Bitácora (más reciente arriba)
+
+### 2026-11-17 — Prompt 2: valores reales en config.js
+- Hecho: Iñaki pegó la URL del proyecto y la publishable key en `js/core/config.js` (LS1).
+  Comprobado contra Supabase con esa key: el proveedor Email está activo, el registro
+  público está desactivado (BD4) y una lectura de `items` sin sesión da 401 "permission
+  denied" (RNF5).
+- Archivos: `js/core/config.js`, `docs/PROGRESO.md`.
+- Decisiones o cambios: ninguno.
+- Pendientes / dudas para Iñaki: probar los criterios de terminado del prompt 2.
 
 ### 2026-11-17 — Prompt 2: login y sesión
 - Hecho:
