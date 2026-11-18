@@ -11,6 +11,20 @@
 
 ## Bitácora (más reciente arriba)
 
+### 2026-11-17 — Cierre del prompt 0: unión con el remoto y primer push
+- Hecho: se unió la historia local con `origin/main` (`git pull origin main
+  --allow-unrelated-histories`, merge `6223d01`), sin conflictos. El remoto solo tenía
+  `0471733 first commit` con un `README.md`; no había duplicados de archivos movidos (por
+  ejemplo `docs/docs/`), así que no hizo falta un commit de borrado. Primer push a `origin`.
+- Archivos: `README.md` (llega desde el remoto; está en UTF-16 y solo dice
+  `# banco-de-apuntes`), `docs/PROGRESO.md`.
+- Decisiones o cambios: se conserva la historia del remoto (se descartó el force push).
+- Pendientes / dudas para Iñaki:
+  - `README.md` está en UTF-16: GitHub lo muestra raro y git lo trata como binario. Se
+    puede reescribir en UTF-8 con una descripción real del proyecto.
+  - La carpeta padre (`Banco de apuntes/`) todavía tiene su `.git`, su `README.md` y su `.env`
+    vacío. Ahora que todo está en este repo, se pueden borrar.
+
 ### 2026-11-17 — Cierre del prompt 0: quitar copia de prompts
 - Hecho: se eliminó `docs/prompts-claude-code.md` del repo. La fuente de verdad de los
   prompts es el proyecto de claude.ai y se pasan de a uno.
@@ -22,7 +36,7 @@
     (`inaki-legarreta/banco-de-apuntes`), y GitHub `main` apunta a su commit `0471733`
     ("first commit", solo un README). No se borró nada. La historia de este repo no tiene
     relación con ese commit, así que el push necesita una decisión: sobrescribir `main` o
-    unir las dos historias.
+    unir las dos historias. (Resuelto: se unieron, ver la entrada siguiente.)
 
 ### 2026-11-17 — Prompt 0: base del proyecto
 - Hecho:
@@ -62,4 +76,4 @@
     (`banco-de-apuntes/`, remoto `inaki-legarreta/banco-de-apuntes`). Conviene decidir si el
     repo de la carpeta padre se borra para evitar confusiones. El `.env` real debería vivir
     dentro de `banco-de-apuntes/` (ya está en `.gitignore`).
-  - El commit no se subió a GitHub (no se hizo push).
+  - El commit no se subió a GitHub (no se hizo push). (Resuelto en el cierre del prompt 0.)
